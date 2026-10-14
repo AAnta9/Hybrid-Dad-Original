@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Hybrid Dad Blueprint — Sistema de Seguimiento y Cargas</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-input: #0b1120;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* HEADER & TIMER BAR */
+    header {
+      background: #090d16;
+      border-bottom: 2px solid var(--accent);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-main);
+    }
+
+    .brand span {
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: block;
+      letter-spacing: 1px;
+    }
+
+    .timer-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .timer-display {
+      font-size: 1.4rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      min-width: 75px;
+    }
+
+    .timer-phase {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--bg-input);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.15s;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button.secondary {
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    button.secondary:hover {
+      border-color: var(--accent);
+    }
+
+    /* NAVIGATION TABS */
+    .nav-tabs {
+      display: flex;
+      overflow-x: auto;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      padding: 14px 18px;
+      border-radius: 0;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* CARDS & GRIDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-up { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .badge-hold { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-deload { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+
+    /* CONTROLS BAR */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg-card);
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    select, input[type="number"], input[type="text"] {
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* EXERCISE LOGGING TABLE */
+    .exercise-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .exercise-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .exercise-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--accent);
+    }
+
+    .exercise-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .warmup-helper {
+      background: rgba(59, 130, 246, 0.1);
+      border-left: 3px solid var(--info);
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      color: #93c5fd;
+      margin-bottom: 12px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .set-box {
+      background: var(--bg-card);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .set-box label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .set-inputs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .set-inputs input {
+      width: 100%;
+    }
+
+    /* TABLES */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .checklist-table th, .checklist-table td {
+      text-align: center;
+      padding: 8px 6px;
+    }
+
+    .checklist-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .alert-box {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+
+    .small-list {
+      padding-left: 18px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .small-list li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER & 45-MIN SESSION CLOCK -->
+  <header>
+    <div class="brand">
+      <h1>The Hybrid Dad Blueprint</h1>
+      <span>EDITION 2 (2026) — SISTEMA DE GESTIÓN DE CARGAS (8 SEMANAS)</span>
+    </div>
+    <div class="timer-box">
+      <div>
+        <div class="timer-display" id="timerDisplay">00:00</div>
+        <div class="timer-phase" id="timerPhase">Listo (Plantilla 45 min)</div>
+      </div>
+      <button onclick="toggleTimer()" id="timerBtn">Iniciar</button>
+      <button class="secondary" onclick="resetTimer()">Reiniciar</button>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="nav-tabs">
+    <button class="tab-btn active" onclick="openTab('tab-tracker', this)">1. Entrenamiento y Cargas</button>
+    <button class="tab-btn" onclick="openTab('tab-structure', this)">2. Estructura y Reglas</button>
+    <button class="tab-btn" onclick="openTab('tab-benchmarks', this)">3. Benchmarks y Descarga</button>
+    <button class="tab-btn" onclick="openTab('tab-nutrition', this)">4. Nutrición y Logística</button>
+    <button class="tab-btn" onclick="openTab('tab-checklist', this)">5. Checklist 8 Semanas</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- TAB 1: WORKOUT & PROGRESSION TRACKER -->
+    <section id="tab-tracker" class="tab-content active">
+      <div class="controls-bar">
+        <div>
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block;">Semana del Bloque (1–8)</label>
+          <select id="weekSelect" onchange="renderWorkout()">
+            <option value="1">Semana 1 — Encontrar cargas y test Benchmarks</option>
+            <option value="2">Semana 2 — Progresión estándar</option>
+            <option value="3">Semana 3 — Progresión (+1 intervalo Engine)</option>
+            <option value="4">Semana 4 — Progresión estándar</option>
+            <option value="5">Semana 5 — DESCARGA (1 serie efectiva, ritmo suave)</option>
+            <option value="6">Semana 6 — Push (Cargas máximas)</option>
+            <option value="7">Semana 7 — Push (+intervalos / volumen Engine)</option>
+            <option value="8">Semana 8 — Push final y Re-test Benchmarks</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size:0.8rem; color:var(--text-muted); display:block;">Sesión a Registrar</label>
+          <select id="sessionSelect" onchange="renderWorkout()">
+            <option value="strengthA">Sesión 1: Strength A (Lunes - Squat / Push / Pull)</option>
+            <option value="engine">Sesión 2: Engine Day (Martes - 4 Menús)</option>
+            <option value="strengthB">Sesión 3: Strength B (Jueves - Hinge / OH / Pull)</option>
+            <option value="hybridGym">Sesión 4: Hybrid Sábado (Versión Gimnasio)</option>
+            <option value="hybridGarage">Sesión 4: Hybrid Sábado (Versión Garaje / Sin Máquinas)</option>
+          </select>
+        </div>
+
+        <div style="margin-left:auto; display:flex; gap:8px;">
+          <button class="secondary" onclick="exportData()">Exportar JSON</button>
+          <button class="secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+        </div>
+      </div>
+
+      <!-- WEEK FOCUS BANNER -->
+      <div id="weekBanner" class="alert-box badge-hold"></div>
+
+      <!-- WARMUP REMINDER -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Bloque 1: Calentamiento Estándar (Minutos 0:00 – 5:00)</span>
+          <span class="badge badge-deload">Obligatorio — Nunca omitir</span>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-muted);">
+          <strong>Movilidad dinámica y activación (5 min):</strong> 2 minutos suaves en bicicleta o remo + 10 sentadillas con peso corporal + 10 flexiones + 10 <em>band pull-aparts</em> + 10 bisagras de cadera + 30 s de apertura de cadera por lado. Acto seguido, realiza las series de aproximación del primer levantamiento.
+        </p>
+      </div>
+
+      <!-- DYNAMIC WORKOUT CONTAINER -->
+      <div id="workoutContainer"></div>
+
+      <!-- CORE & CARRIES REMINDER -->
+      <div class="card" id="coreCard">
+        <div class="card-header">
+          <span class="card-title">Bloque 4: Core + Acarreos (Minutos 40:00 – 45:00)</span>
+          <span class="badge badge-up">Calidad sobre velocidad</span>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">
+          <strong>2 rondas combinando 1 acarreo + 1 ejercicio de core:</strong> <em>Suitcase carry</em> (20 m por mano), <em>Farmer's walk</em> (40 m pesado), <em>Dead bug</em> (10/lado) o variaciones de plancha (45 s).
+        </p>
+        <div class="sets-grid">
+          <div class="set-box">
+            <label>Registro Core + Carries (Pesos / Notas)</label>
+            <input type="text" id="coreNotesInput" placeholder="Ej: Farmer walk 32kg/mano x 40m + Dead bug x 2 rondas" oninput="saveCoreNotes()">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: WEEKLY STRUCTURE & RULES -->
+    <section id="tab-structure" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Estructura Semanal (3, 4 o 5 Días)</span>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+            <strong>Regla de oro:</strong> Lo innegociable es la secuencia (el patrón), no el día del calendario. Nunca hagas dos días de fuerza seguidos y acumula <strong>8.000+ pasos diarios</strong>.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Día</th>
+                <th>Estándar (4 Días)</th>
+                <th>Turnos / Commuter</th>
+                <th>3 Días (Con recién nacido)</th>
+                <th>5 Días</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Lunes</strong></td><td>Strength A</td><td>Strength A</td><td>Strength A (Finisher 15m)</td><td>Strength A</td></tr>
+              <tr><td><strong>Martes</strong></td><td>Engine Day</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td><td>Engine Day</td></tr>
+              <tr><td><strong>Miércoles</strong></td><td>Descanso + Pasos</td><td>Strength B</td><td>Strength B (Finisher 15m)</td><td>Strength B</td></tr>
+              <tr><td><strong>Jueves</strong></td><td>Strength B</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td></tr>
+              <tr><td><strong>Viernes</strong></td><td>Descanso + Pasos</td><td>Engine Day</td><td>Descanso + Pasos</td><td>Easy Engine (40-60m suave)</td></tr>
+              <tr><td><strong>Sábado</strong></td><td>Hybrid Session</td><td>Hybrid Session</td><td>Hybrid Session</td><td>Hybrid Session</td></tr>
+              <tr><td><strong>Domingo</strong></td><td>Descanso, familia, paseo</td><td>Descanso, familia, paseo</td><td>Descanso, familia, paseo</td><td>Descanso, familia, paseo</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Reglas de Progresión y Plantilla de 45 Min</span>
+          </div>
+          <ul class="small-list">
+            <li><strong>Doble Progresión en Fuerza:</strong> Empieza en el extremo inferior del rango de repeticiones. Cuando logres el tope del rango en <strong>ambas series de trabajo</strong> (a RIR 1–2), la siguiente sesión sube <strong>+2,5 kg en tren superior</strong> o <strong>+5 kg en tren inferior</strong> y vuelve a la base del rango. Nunca subas peso y repeticiones la misma semana.</li>
+            <li><strong>RIR (Repeticiones en Recámara):</strong> Detén cada serie efectiva cuando pudieras hacer 1 o 2 repeticiones más con buena técnica (en la sesión Híbrida del sábado, mantén RIR 2 en los bloques de fuerza).</li>
+            <li><strong>Descansos:</strong> 2–3 minutos entre series efectivas del levantamiento principal; 60–90 segundos en el resto (aprovechando las superseries).</li>
+            <li><strong>¿Vas tarde de tiempo?:</strong> Ejecuta solo los Bloques 1 y 2 (Calentamiento + Fuerza = 25 minutos). La fuerza siempre tiene prioridad cuando falta tiempo.</li>
+            <li><strong>Progresión de Dominadas (¿Aún no haces?):</strong>
+              <br>• Semanas 1–3: Jalón al pecho + 3×5 negativas lentas.
+              <br>• Semanas 4–6: Asistidas con goma (la más fina posible para 6 reps).
+              <br>• Semanas 7–8: Estrictas todas las que puedas + goma para completar.
+            </li>
+            <li><strong>Reglas de Engine (+35 años):</strong> Un día duro de Engine por semana basta junto con los finishers. Rota bici y remo con carrera para proteger gemelos y tendón de Aquiles. <strong>Nunca hagas Engine el día anterior al peso muerto.</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: BENCHMARKS & DELOAD DETECTOR -->
+    <section id="tab-benchmarks" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Test de Benchmarks (Semana 1 vs. Semana 8)</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">
+            Introduce tus marcas en la Semana 1 y reevalúa en la Semana 8. Pasar una columna a la derecha en 8 semanas confirma el éxito del bloque.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Prueba</th>
+                <th>Getting Going</th>
+                <th>Solid Dad</th>
+                <th>Hybrid Dad</th>
+                <th>Athlete</th>
+                <th>Marca Sem. 1</th>
+                <th>Marca Sem. 8</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>2.000m Remo</strong></td>
+                <td>9:00+</td><td>8:00–9:00</td><td>7:15–8:00</td><td>&lt; 7:15</td>
+                <td><input type="text" id="bm_row_1" placeholder="ej. 7:45" oninput="saveBenchmarks()"></td>
+                <td><input type="text" id="bm_row_8" placeholder="ej. 7:25" oninput="saveBenchmarks()"></td>
+              </tr>
+              <tr>
+                <td><strong>5 km Carrera</strong></td>
+                <td>32:00+</td><td>27:00–32:00</td><td>23:00–27:00</td><td>&lt; 23:00</td>
+                <td><input type="text" id="bm_run_1" placeholder="ej. 26:30" oninput="saveBenchmarks()"></td>
+                <td><input type="text" id="bm_run_8" placeholder="ej. 24:50" oninput="saveBenchmarks()"></td>
+              </tr>
+              <tr>
+                <td><strong>10 min Bike Erg</strong></td>
+                <td>&lt; 120 cal</td><td>120–160 cal</td><td>160–200 cal</td><td>200+ cal</td>
+                <td><input type="text" id="bm_bike_1" placeholder="ej. 155 cal" oninput="saveBenchmarks()"></td>
+                <td><input type="text" id="bm_bike_8" placeholder="ej. 175 cal" oninput="saveBenchmarks()"></td>
+              </tr>
+              <tr>
+                <td><strong>Farmer's Walk 40m</strong></td>
+                <td>&lt; 0.5× peso corp.</td><td>0.5× peso corp.</td><td>0.75× peso corp.</td><td>1× peso corp. total</td>
+                <td><input type="text" id="bm_fw_1" placeholder="kg totales" oninput="saveBenchmarks()"></td>
+                <td><input type="text" id="bm_fw_8" placeholder="kg totales" oninput="saveBenchmarks()"></td>
+              </tr>
+              <tr>
+                <td><strong>Trap Bar DL (5 reps)</strong></td>
+                <td>&lt; peso corp.</td><td>1× peso corp.</td><td>1.5× peso corp.</td><td>2× peso corp.</td>
+                <td><input type="text" id="bm_dl_1" placeholder="kg" oninput="saveBenchmarks()"></td>
+                <td><input type="text" id="bm_dl_8" placeholder="kg" oninput="saveBenchmarks()"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Detector de Descarga Anticipada (Deload)</span>
+          </div>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:14px;">
+            La descarga oficial es en la <strong>Semana 5</strong> (mismos pesos, 1 sola serie efectiva, Engine a ritmo suave). Sin embargo, marca si presentas cualquiera de estos síntomas actuales:
+          </p>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Los levantamientos retroceden durante dos sesiones seguidas.</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Frecuencia cardíaca en reposo (RHR) +5 pulsaciones durante 3 mañanas seguidas.</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Peor sueño, peor humor o rechazo mental a entrenar.</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Molestias articulares/musculares (<em>niggles</em>) que no remiten en 48 horas.</span>
+            </label>
+          </div>
+          <div id="deloadAlert" class="alert-box badge-up">
+            Estado óptimo: Menos de 2 síntomas. Continúa con la sobrecarga progresiva programada.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: NUTRITION & LOGISTICS -->
+    <section id="tab-nutrition" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Calculadora Nutricional para Padres Híbridos</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <label><strong>Tu Peso Corporal (kg):</strong></label>
+            <input type="number" id="bodyWeightInput" value="99" step="0.5" oninput="calculateNutrition()" style="width:100px;">
+          </div>
+          <div id="nutritionResults" class="grid-3" style="margin-bottom:16px;"></div>
+          <ul class="small-list">
+            <li><strong>Regla 80/20:</strong> 22 de tus 28 comidas semanales dentro del plan. Las otras 6 son libres y planificadas (cena del viernes, asado del domingo, pinta tras el entreno híbrido).</li>
+            <li><strong>Hidratación y Electrolitos:</strong> Cada mañana 1 pinta (~500 ml) de agua con electrolitos o una pizca de sal antes del café, más 2–3 L durante el día.</li>
+            <li><strong>Suplementos:</strong> Proteína de suero (Whey), creatina 5 g diarios y electrolitos. Nada más.</li>
+            <li><strong>Alerta de Déficit Excesivo:</strong> Si caen los levantamientos, se estancan los tiempos de Engine o empeora el sueño (2 de 3), añade <strong>+200 kcal de carbohidratos</strong> alrededor del entreno.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Estructura de Platos: Día de Entreno vs. Descanso</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Comida</th><th>Día de Entrenamiento</th><th>Día de Descanso</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Pre-sesión</strong></td><td>Plátano o 40g avena + whey, agua + electrolitos (o en ayunas y comer justo después)</td><td>—</td></tr>
+              <tr><td><strong>Desayuno</strong></td><td>Huevos + 2 tostadas, o Yogur griego + whey + granola</td><td>Huevos + espinacas + 1 tostada, o Yogur griego + whey + frutos rojos</td></tr>
+              <tr><td><strong>Comida</strong></td><td>Palma de proteína + puño de arroz/patata + verdura</td><td>Palma de proteína + gran ensalada + medio puño de carbohidratos</td></tr>
+              <tr><td><strong>Cena</strong></td><td>Comida familiar, priorizando proteína y carbohidratos normales</td><td>Comida familiar, proteína primero, mitad de carbohidratos, doble verdura</td></tr>
+              <tr><td><strong>Snack</strong></td><td>Whey con leche o barrita proteica</td><td>Yogur griego o requesón (cottage cheese)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Logística 5:00 AM, Setup del Domingo y Prevención (+35 años)</span>
+          </div>
+          <ul class="small-list">
+            <li><strong>Protocolo 5:00 AM:</strong> Ropa, zapatillas, agua y auriculares listos la noche anterior (cero decisiones a las 5 am). En la cama a las 22:00 (la sesión se decide a las 21:30). Sesión ya escrita en notas. Agua + electrolitos y empezar. Listo y duchado a las 6:15.</li>
+            <li><strong>Palancas de Recuperación:</strong> Dormir 7 h (si duermes &lt;6 h dos noches seguidas, elimina el bloque de Engine de ese día y haz solo fuerza); 8.000+ pasos; 2 g/kg proteína; 1 día de descanso total en familia.</li>
+            <li><strong>Setup del Domingo (20 min):</strong> Anotar las 4 sesiones con los pesos de la semana anterior, agendarlas en el calendario familiar compartido, cargar auriculares, llenar botellas, preparar ropa del lunes, cocinar doble cena y dejar listos 3 desayunos.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Equipamiento de Garaje (Orden de Prioridad)</span>
+          </div>
+          <ol class="small-list">
+            <li>Mancuernas ajustables (hasta 32 kg+)</li>
+            <li>Banco (plano / inclinable)</li>
+            <li>Barra de dominadas</li>
+            <li>Kettlebell (24 kg para la mayoría)</li>
+            <li>Bandas de resistencia</li>
+            <li>Comba de saltar (<em>skipping rope</em>)</li>
+            <li>Rack + barra olímpica (cuando estés seguro)</li>
+            <li>Bicicleta o remo (de segunda mano sirve)</li>
+            <li>Esterillas / suelo de goma para ti y tu hijo</li>
+          </ol>
+          <p style="font-size:0.8rem; color:var(--accent); margin-top:8px;">
+            *Los puntos 1 al 6 permiten ejecutar todo el programa mediante la columna de sustituciones (Swaps).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: 8-WEEK CHECKLIST -->
+    <section id="tab-checklist" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">The Hybrid Dad Checklist (Seguimiento de 8 Semanas)</span>
+          <span class="badge badge-up">Objetivo: 12 ticks por semana</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="checklist-table" id="checklistTable"></table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // --- PROGRAM DATA STRICTLY FROM DOCUMENT ---
+    const SESSIONS = {
+      strengthA: {
+        title: "Strength A — Lunes (Squat / Push / Pull + Finisher)",
+        restInfo: "Descanso: 2-3 min en Sentadilla | 60-90 s en superseries (RIR 1-2)",
+        exercises: [
+          { id: "sq", name: "1. Barbell Back Squat", type: "lower", isMain: true, warmupSets: 2, workSets: 2, minReps: 6, maxReps: 8, rir: "1-2", swap: "Goblet squat o DB front squat x 10" },
+          { id: "db_bp", name: "2A. Dumbbell Bench Press (Superserie con 2B)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 10, rir: "1-2", swap: "Press-ups con pies elevados" },
+          { id: "cs_row", name: "2B. Chest-Supported Row (Superserie con 2A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 10, maxReps: 12, rir: "1-2", swap: "Single-arm dumbbell row x 10/lado" },
+          { id: "split_sq", name: "3A. Dumbbell Split Squat (Superserie con 3B)", type: "lower", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 8, rir: "1-2", unitNote: "reps/pierna", swap: "Reverse lunge" },
+          { id: "face_pull", name: "3B. Face Pulls (Superserie con 3A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 15, maxReps: 15, rir: "1-2", swap: "Band pull-aparts x 20" }
+        ],
+        finisher: "Engine Finisher (10-15 min): Bike o Rower, 40 s fuerte / 20 s suave × 12 rondas. ¿Sin máquina?: Kettlebell swings 15 + burpees 5, EMOM 12 min. (Anota calorías o rondas)."
+      },
+      strengthB: {
+        title: "Strength B — Jueves (Hinge / Overhead / Pull + Short Burst)",
+        restInfo: "Descanso: 2-3 min en Peso Muerto | 60-90 s en superseries (RIR 1-2)",
+        exercises: [
+          { id: "dl", name: "1. Trap Bar o Barbell Deadlift", type: "lower", isMain: true, warmupSets: 2, workSets: 2, minReps: 5, maxReps: 5, rir: "1-2", swap: "Romanian deadlift x 8 o Kettlebell deadlift x 10" },
+          { id: "ohp", name: "2A. Standing Overhead Press (Superserie con 2B)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 6, maxReps: 8, rir: "1-2", swap: "Seated DB shoulder press x 8-10" },
+          { id: "pullup", name: "2B. Pull-ups o Lat Pulldown (Superserie con 2A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 6, maxReps: 10, rir: "1-2", swap: "Band-assisted pull-ups (Ver progresión sem. 1-8)" },
+          { id: "hip_thrust", name: "3A. Barbell Hip Thrust (Superserie con 3B)", type: "lower", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 10, rir: "1-2", swap: "DB hip thrust o single-leg glute bridge x 12" },
+          { id: "knee_raise", name: "3B. Hanging Knee Raise (Superserie con 3A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 10, maxReps: 15, rir: "1-2", swap: "Dead bug x 10/lado" }
+        ],
+        finisher: "Short Burst Finisher (8 min): Rower o Bike, 30 s fuerte / 30 s suave × 8 rondas. ¿Sin máquina?: 200 m shuttle run × 6, volver caminando."
+      },
+      hybridGym: {
+        title: "Sábado: The Hybrid Session (Versión Gimnasio — 45 Min)",
+        restInfo: "Superseries a RIR 2 (guardando energía para el bloque de acondicionamiento), 90 s descanso",
+        exercises: [
+          { id: "hy_fsq", name: "Superserie 1A (Min 5-15): Front Squat o Goblet Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 8, rir: "2", swap: "Goblet Squat pesado" },
+          { id: "hy_pull", name: "Superserie 1B (Min 5-15): Pull-ups", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 10, rir: "2", swap: "Band-assisted pull-ups" },
+          { id: "hy_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "Push press con barra" },
+          { id: "hy_rdl", name: "Superserie 2B (Min 15-25): Romanian Deadlift", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "DB RDL" }
+        ],
+        finisher: "Bloque Conditioning (Min 25-40): 3 rondas por tiempo (2 min descanso entre rondas): 500m row + 10 KB swings pesados + 10 burpees over the bar + 200m run (o 20 cal bike). Escala difícil Sem 6-8: 4 rondas, 90s descanso, KB más pesada."
+      },
+      hybridGarage: {
+        title: "Sábado: The Hybrid Session (Versión Garaje / Sin Máquinas — 45 Min)",
+        restInfo: "Superseries a RIR 2, 90 s descanso. Ideal para entrenar con los niños cerca.",
+        exercises: [
+          { id: "hg_fsq", name: "Superserie 1A (Min 5-15): Dumbbell Front Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "Goblet Squat" },
+          { id: "hg_row", name: "Superserie 1B (Min 5-15): Single-Arm Dumbbell Row", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps/brazo", swap: "Remo con banda" },
+          { id: "hg_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "Press militar mancuernas" },
+          { id: "hg_rdl", name: "Superserie 2B (Min 15-25): Dumbbell RDL", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", swap: "KB Deadlift" }
+        ],
+        finisher: "Bloque Conditioning (Min 25-40): Complejo con mancuernas (5 rondas, sin soltar las mancuernas): 6 deadlifts + 6 hang cleans + 6 front squats + 6 push presses + 6 bent-over rows + 200m carrera o 60s comba. Descanso 90 s."
+      }
+    };
+
+    const ENGINE_MENUS = [
+      {
+        id: "menu1",
+        name: "Menú 1: Rower Ladders (Escalera de Remo)",
+        warmup: "5 min suave, 3 × 10 paladas fuertes",
+        baseWork: "250m – 500m – 750m – 500m – 250m (Fuerte). Descanso = tiempo que tardaste en el tramo anterior.",
+        cooldown: "4 min suave",
+        scoreLabel: "Tiempo total de trabajo en la escalera (min:seg)",
+        progressionRule: (w) => w >= 5 ? "PROGRESIÓN SEM 5+: Añade un segundo bloque de 750m (250-500-750-750-500-250m)." : "Semanas 1-4: Escalera estándar (vence tu tiempo anterior)."
+      },
+      {
+        id: "menu2",
+        name: "Menú 2: Bike Erg Intervals",
+        warmup: "5 min suave, último minuto subiendo ritmo",
+        baseWork: "1 min fuerte / 2 min suave × 8 rondas (24 min)",
+        cooldown: "4 min suave",
+        scoreLabel: "Calorías totales en los minutos fuertes",
+        progressionRule: (w) => {
+          if (w >= 7) return "PROGRESIÓN SEM 7-8: 90 seg fuerte / 2 min suave × 8 rondas.";
+          if (w >= 5) return "PROGRESIÓN SEM 5-6: 1 min fuerte / 2 min suave × 10 rondas.";
+          if (w >= 3) return "PROGRESIÓN SEM 3-4: 1 min fuerte / 2 min suave × 9 rondas.";
+          return "Semanas 1-2: 8 rondas estándar (1 min fuerte / 2 min suave).";
+        }
+      },
+      {
+        id: "menu3",
+        name: "Menú 3: Runner Tempo Blocks",
+        warmup: "5 min caminar-trotar, 4 × 20 s progresivos (strides)",
+        baseWork: "3 min tempo (fuerte pero constante) / 2 min caminando × 5 bloques (Cinta curva, normal o calle).",
+        cooldown: "5 min caminando",
+        scoreLabel: "Distancia total cubierta en los minutos de tempo (metros/km)",
+        progressionRule: (w) => {
+          if (w >= 7) return "PROGRESIÓN SEM 7-8: 6 bloques de 4 min tempo / 2 min caminando.";
+          if (w >= 5) return "PROGRESIÓN SEM 5-6: 5 bloques de 4 min tempo / 2 min caminando.";
+          if (w >= 3) return "PROGRESIÓN SEM 3-4: 6 bloques de 3 min tempo / 2 min caminando.";
+          return "Semanas 1-2: 5 bloques de 3 min tempo (15 min totales de trabajo).";
+        }
+      },
+      {
+        id: "menu4",
+        name: "Menú 4: Metcon Circuit (Sin Máquinas)",
+        warmup: "5 min: swings ligeros, sentadillas, flexiones",
+        baseWork: "5 rondas (90 s descanso): 15 KB swings + 12 goblet squats + 12 press-ups + 10 DB rows/brazo + 200m carrera (o 30 mountain climbers).",
+        cooldown: "5 min caminando",
+        scoreLabel: "Tiempo total para completar las rondas (min:seg)",
+        progressionRule: (w) => {
+          if (w >= 7) return "PROGRESIÓN SEM 7-8: 6 rondas completas con pesa rusa más pesada.";
+          if (w >= 5) return "PROGRESIÓN SEM 5-6: 5 rondas subiendo el peso de la Kettlebell/mancuerna.";
+          return "Semanas 1-4: 5 rondas estándar buscando mejorar el tiempo total.";
+        }
+      }
+    ];
+
+    const CHECKLIST_ITEMS = [
+      "Movimiento: 8.000+ pasos la mayoría de los días",
+      "Entrenar con intención: cada sesión escrita y puntuada",
+      "Proteína en cada comida (40g+)",
+      "7 horas de sueño siempre que fue posible",
+      "Sin sabotaje nocturno: cocina cerrada tras el snack",
+      "Predicar con el ejemplo: mis hijos me vieron entrenar o caminar",
+      "Completadas ambas sesiones de Fuerza (A y B)",
+      "Completado el Engine Day (o 2 en semana de 5 días)",
+      "Completada la sesión Híbrida del sábado",
+      "Añadido peso, repeticiones o un intervalo en algún ejercicio",
+      "Progreso revisado: levantamientos, marcas de Engine y peso corporal",
+      "Tomado 1 día completo de descanso con la familia"
+    ];
+
+    // --- STATE MANAGEMENT ---
+    let appData = JSON.parse(localStorage.getItem("hybridDadBlueprintData")) || {
+      workouts: {},
+      benchmarks: {},
+      checklist: {},
+      topSets: {},
+      bodyWeight: 99
+    };
+
+    function saveData() {
+      localStorage.setItem("hybridDadBlueprintData", JSON.stringify(appData));
+    }
+
+    // --- TABS ---
+    function openTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // --- PROGRESSION ENGINE ---
+    function getProgressionAdvice(ex, week, sessionKey) {
+      const w = parseInt(week);
+      if (w === 1) {
+        return { badgeClass: "badge-deload", text: `Semana 1: Encuentra tu carga de trabajo para hacer ${ex.minReps}${ex.maxReps !== ex.minReps ? '-' + ex.maxReps : ''} reps a RIR ${ex.rir}.` };
+      }
+
+      const prevKey = `w${w - 1}_${sessionKey}_${ex.id}`;
+      const prevData = appData.workouts[prevKey];
+
+      if (!prevData || !prevData.sets || prevData.sets.length === 0 || !prevData.sets[0].weight) {
+        return { badgeClass: "badge-hold", text: `Sin registro en Semana ${w - 1}. Introduce tu carga objetivo (${ex.minReps}-${ex.maxReps} reps).` };
+      }
+
+      const lastWeight = parseFloat(prevData.sets[0].weight) || 0;
+
+      if (w === 5) {
+        return {
+          badgeClass: "badge-deload",
+          text: `SEMANA 5 (DESCARGA): Mantén ${lastWeight} kg, realiza SOLO 1 serie efectiva y deja margen.`
+        };
+      }
+
+      // Check if all working sets in previous week hit maxReps
+      const requiredSets = (w - 1 === 5) ? 1 : ex.workSets;
+      let hitTopOnAll = true;
+      let repsSummary = [];
+
+      for (let i = 0; i < requiredSets; i++) {
+        const s = prevData.sets[i] || { reps: 0 };
+        const r = parseInt(s.reps) || 0;
+        repsSummary.push(r);
+        if (r < ex.maxReps) hitTopOnAll = false;
+      }
+
+      const increment = ex.type === "lower" ? 5 : 2.5;
+
+      if (hitTopOnAll) {
+        const nextWeight = lastWeight + increment;
+        return {
+          badgeClass: "badge-up",
+          text: `¡SUBIR PESO! Lograste ${repsSummary.join('/')} reps con ${lastWeight} kg. Sube +${increment} kg → ${nextWeight} kg y apunta a ${ex.minReps} reps.`
+        };
+      } else {
+        return {
+          badgeClass: "badge-hold",
+          text: `MANTENER ${lastWeight} kg (Sem. anterior: ${repsSummary.join('/')} reps). Objetivo hoy: sumar repeticiones hasta alcanzar ${ex.maxReps} en todas las series.`
+        };
+      }
+    }
+
+    function calcWarmupText(ex, currentWeight) {
+      const w = parseFloat(currentWeight);
+      if (!w || w <= 0) return "Introduce el peso de la Serie 1 para calcular las series de calentamiento automáticamente.";
+      const round25 = (val) => Math.round(val / 2.5) * 2.5;
+      if (ex.isMain) {
+        return `Calentamiento Principal (2 series): Serie Aprox. 1: <strong>${round25(w * 0.5)} kg × 8 reps</strong> (~50%) | Serie Aprox. 2: <strong>${round25(w * 0.75)} kg × 4 reps</strong> (~75%).`;
+      } else {
+        return `Calentamiento Secundario (1 serie): Serie Aprox. 1: <strong>${round25(w * 0.7)} kg × 6 reps</strong> (~70%).`;
+      }
+    }
+
+    // --- RENDER WORKOUT ---
+    function renderWorkout() {
+      const week = parseInt(document.getElementById("weekSelect").value);
+      const sessionKey = document.getElementById("sessionSelect").value;
+      const container = document.getElementById("workoutContainer");
+      const banner = document.getElementById("weekBanner");
+
+      // Update Banner
+      const bannerMessages = {
+        1: "SEMANA 1: Encuentra tus pesos de trabajo (RIR 1-2) y registra tus Benchmarks iniciales en la Pestaña 3.",
+        2: "SEMANA 2: Progresa cada levantamiento en repeticiones o peso según lo registrado en la Semana 1.",
+        3: "SEMANA 3: Sube repeticiones/peso en fuerza y añade +1 intervalo en Engine.",
+        4: "SEMANA 4: Última semana del primer bloque de carga antes de la descarga. Supera el libro de notas.",
+        5: "SEMANA 5 (DESCARGA OBLIGATORIA): Usa los mismos pesos de la Semana 4, haz SOLO 1 serie de trabajo por ejercicio y ejecuta el Engine a ritmo suave conversacional.",
+        6: "SEMANA 6 (PUSH): Retoma todas las series de trabajo, levantamientos más pesados y mayor intensidad en acondicionamiento.",
+        7: "SEMANA 7 (PUSH MÁXIMO): Cargas pico y aumento de volumen/duración en los bloques de Engine.",
+        8: "SEMANA 8 (RE-TEST): Último empuje de cargas y reevaluación de los 5 Benchmarks para comprobar tu salto de nivel."
+      };
+      banner.className = week === 5 ? "alert-box badge-deload" : "alert-box badge-hold";
+      banner.innerHTML = `<strong>Foco del Bloque — </strong> ${bannerMessages[week]}`;
+
+      // Load Core Notes
+      const coreKey = `w${week}_${sessionKey}_core`;
+      document.getElementById("coreNotesInput").value = appData.workouts[coreKey] || "";
+
+      // If Engine Day
+      if (sessionKey === "engine") {
+        document.getElementById("coreCard").style.display = "none";
+        let html = `<div class="card"><div class="card-header"><span class="card-title">Engine Day (30–40 Minutos) — Elige 1 Menú</span><span class="badge badge-up">Fuerte = No puedes hablar</span></div>`;
+        ENGINE_MENUS.forEach(menu => {
+          const storageKey = `w${week}_engine_${menu.id}`;
+          const savedScore = appData.workouts[storageKey] || "";
+          const prevScore = appData.workouts[`w${week - 1}_engine_${menu.id}`] || "Sin registro";
+          html += `
+            <div class="exercise-item">
+              <div class="exercise-top">
+                <div>
+                  <div class="exercise-name">${menu.name}</div>
+                  <div class="exercise-meta"><strong>Calentamiento:</strong> ${menu.warmup} | <strong>Enfriamiento:</strong> ${menu.cooldown}</div>
+                </div>
+                <span class="badge badge-deload">${menu.progressionRule(week)}</span>
+              </div>
+              <p style="font-size:0.9rem; margin-bottom:10px;"><strong>Trabajo Principal:</strong> ${menu.baseWork}</p>
+              <div class="sets-grid">
+                <div class="set-box">
+                  <label>${menu.scoreLabel} (Sem. anterior: ${prevScore})</label>
+                  <input type="text" value="${savedScore}" placeholder="Anota tu marca de hoy..." oninput="saveEngineScore('${storageKey}', this.value)">
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+        return;
+      }
+
+      // Strength / Hybrid Sessions
+      document.getElementById("coreCard").style.display = "block";
+      const session = SESSIONS[sessionKey];
+      let html = `
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Bloque 2: ${session.title} (Minutos 5:00 – 25:00)</span>
+            <span class="badge badge-hold">${session.restInfo}</span>
+          </div>
+      `;
+
+      session.exercises.forEach(ex => {
+        const storageKey = `w${week}_${sessionKey}_${ex.id}`;
+        const savedEx = appData.workouts[storageKey] || { sets: [] };
+        const advice = getProgressionAdvice(ex, week, sessionKey);
+        const effectiveWorkSets = (week === 5) ? 1 : ex.workSets;
+        const firstWeight = (savedEx.sets[0] && savedEx.sets[0].weight) ? savedEx.sets[0].weight : "";
+
+        html += `
+          <div class="exercise-item">
+            <div class="exercise-top">
+              <div>
+                <div class="exercise-name">${ex.name}</div>
+                <div class="exercise-meta">
+                  Series: ${ex.warmupSets} aprox. + <strong>${effectiveWorkSets} efectivas</strong> |
+                  Rango objetivo: <strong>${ex.minReps}${ex.maxReps !== ex.minReps ? '–' + ex.maxReps : ''} ${ex.unitNote || 'reps'}</strong> (RIR ${ex.rir}) |
+                  <em>Swap: ${ex.swap}</em>
+                </div>
+              </div>
+              <span class="badge ${advice.badgeClass}">${advice.text}</span>
+            </div>
+            <div class="warmup-helper" id="warmup_${ex.id}">
+              ${calcWarmupText(ex, firstWeight)}
+            </div>
+            <div class="sets-grid">
+        `;
+
+        for (let s = 0; s < effectiveWorkSets; s++) {
+          const setObj = savedEx.sets[s] || { weight: "", reps: "", rir: "" };
+          html += `
+            <div class="set-box">
+              <label>Serie Efectiva ${s + 1}</label>
+              <div class="set-inputs">
+                <input type="number" step="0.5" placeholder="Peso (kg)" value="${setObj.weight}"
+                  oninput="saveSet('${storageKey}', ${s}, 'weight', this.value, '${ex.id}', '${sessionKey}')">
+                <input type="number" placeholder="Reps (${ex.minReps}-${ex.maxReps})" value="${setObj.reps}"
+                  oninput="saveSet('${storageKey}', ${s}, 'reps', this.value, '${ex.id}', '${sessionKey}')">
+                <input type="number" placeholder="RIR" value="${setObj.rir}" style="max-width:70px;"
+                  oninput="saveSet('${storageKey}', ${s}, 'rir', this.value, '${ex.id}', '${sessionKey}')">
+              </div>
+            </div>
+          `;
+        }
+
+        html += `</div></div>`;
+      });
+
+      // Finisher / Conditioning Block (Min 25:00 - 40:00)
+      const finKey = `w${week}_${sessionKey}_finisher`;
+      const savedFin = appData.workouts[finKey] || "";
+      const prevFin = appData.workouts[`w${week - 1}_${sessionKey}_finisher`] || "Sin registro";
+
+      html += `
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Bloque 3: Engine / Conditioning Block (Minutos 25:00 – 40:00)</span>
+            <span class="badge badge-up">${week === 5 ? 'Semana 5: Ritmo suave' : 'Alta Intensidad'}</span>
+          </div>
+          <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">${session.finisher}</p>
+          <div class="sets-grid">
+            <div class="set-box">
+              <label>Puntuación / Calorías / Tiempo (Semana anterior: ${prevFin})</label>
+              <input type="text" value="${savedFin}" placeholder="Ej: 168 cal en Bike / 11:40 tiempo total" oninput="saveEngineScore('${finKey}', this.value)">
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function saveSet(storageKey, setIndex, field, value, exId, sessionKey) {
+      if (!appData.workouts[storageKey]) {
+        appData.workouts[storageKey] = { sets: [] };
+      }
+      if (!appData.workouts[storageKey].sets[setIndex]) {
+        appData.workouts[storageKey].sets[setIndex] = { weight: "", reps: "", rir: "" };
+      }
+      appData.workouts[storageKey].sets[setIndex][field] = value;
+      saveData();
+
+      if (setIndex === 0 && field === "weight") {
+        const ex = SESSIONS[sessionKey].exercises.find(e => e.id === exId);
+        const helperEl = document.getElementById(`warmup_${exId}`);
+        if (ex && helperEl) {
+          helperEl.innerHTML = calcWarmupText(ex, value);
+        }
+      }
+    }
+
+    function saveEngineScore(storageKey, value) {
+      appData.workouts[storageKey] = value;
+      saveData();
+    }
+
+    function saveCoreNotes() {
+      const week = document.getElementById("weekSelect").value;
+      const sessionKey = document.getElementById("sessionSelect").value;
+      appData.workouts[`w${week}_${sessionKey}_core`] = document.getElementById("coreNotesInput").value;
+      saveData();
+    }
+
+    // --- 45-MINUTE SESSION TIMER ---
+    let timerInterval = null;
+    let elapsedSeconds = 0;
+
+    function toggleTimer() {
+      const btn = document.getElementById("timerBtn");
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.textContent = "Reanudar";
+      } else {
+        btn.textContent = "Pausar";
+        timerInterval = setInterval(() => {
+          elapsedSeconds++;
+          updateTimerUI();
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      elapsedSeconds = 0;
+      document.getElementById("timerBtn").textContent = "Iniciar";
+      updateTimerUI();
+    }
+
+    function updateTimerUI() {
+      const mins = Math.floor(elapsedSeconds / 60);
+      const secs = elapsedSeconds % 60;
+      document.getElementById("timerDisplay").textContent =
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      const phaseEl = document.getElementById("timerPhase");
+      if (mins < 5) {
+        phaseEl.textContent = "0-5m: Bloque 1 — Calentamiento";
+        phaseEl.style.color = "#60a5fa";
+      } else if (mins < 25) {
+        phaseEl.textContent = "5-25m: Bloque 2 — Fuerza Principal";
+        phaseEl.style.color = "#fbbf24";
+      } else if (mins < 40) {
+        phaseEl.textContent = "25-40m: Bloque 3 — Engine Block";
+        phaseEl.style.color = "#f87171";
+      } else if (mins < 45) {
+        phaseEl.textContent = "40-45m: Bloque 4 — Core + Carries";
+        phaseEl.style.color = "#34d399";
+      } else {
+        phaseEl.textContent = "¡45m Completados! Sesión terminada";
+        phaseEl.style.color = "#10b981";
+      }
+    }
+
+    // --- BENCHMARKS & DELOAD ---
+    function loadBenchmarks() {
+      const fields = ["bm_row_1","bm_row_8","bm_run_1","bm_run_8","bm_bike_1","bm_bike_8","bm_fw_1","bm_fw_8","bm_dl_1","bm_dl_8"];
+      fields.forEach(f => {
+        if (appData.benchmarks[f]) document.getElementById(f).value = appData.benchmarks[f];
+      });
+    }
+
+    function saveBenchmarks() {
+      const fields = ["bm_row_1","bm_row_8","bm_run_1","bm_run_8","bm_bike_1","bm_bike_8","bm_fw_1","bm_fw_8","bm_dl_1","bm_dl_8"];
+      fields.forEach(f => {
+        appData.benchmarks[f] = document.getElementById(f).value;
+      });
+      saveData();
+    }
+
+    function evaluateDeload() {
+      const count = document.querySelectorAll(".deload-check:checked").length;
+      const alertBox = document.getElementById("deloadAlert");
+      if (count >= 2) {
+        alertBox.className = "alert-box badge-danger";
+        alertBox.innerHTML = `<strong>¡ALERTA DE DESCARGA INMEDIATA! (${count}/4 síntomas):</strong> La regla del programa indica que con 2 o más signos debes aplicar descarga hoy mismo (mismo peso, 1 serie efectiva, Engine suave). Forzar te costará dos semanas.`;
+      } else {
+        alertBox.className = "alert-box badge-up";
+        alertBox.innerHTML = `<strong>Estado óptimo (${count}/4 síntomas):</strong> No requieres adelantar la descarga. Mantén el plan previsto.`;
+      }
+    }
+
+    // --- NUTRITION CALCULATOR ---
+    function calculateNutrition() {
+      const bw = parseFloat(document.getElementById("bodyWeightInput").value) || 99;
+      appData.bodyWeight = bw;
+      saveData();
+
+      const protein = Math.round(bw * 2);
+      const maintMin = Math.round(bw * 30);
+      const maintMax = Math.round(bw * 32);
+      const deficitMin = maintMin - 500;
+      const deficitMax = maintMax - 300;
+
+      document.getElementById("nutritionResults").innerHTML = `
+        <div class="set-box">
+          <label>Proteína Diaria (2g / kg)</label>
+          <div style="font-size:1.3rem; font-weight:800; color:var(--accent);">${protein} g / día</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">En 3 comidas + 1 snack (40g+ c/u)</div>
+        </div>
+        <div class="set-box">
+          <label>Calorías Mantenimiento (×30–32)</label>
+          <div style="font-size:1.3rem; font-weight:800; color:var(--success);">${maintMin} – ${maintMax} kcal</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">Prioridad ganar fuerza y recomponer</div>
+        </div>
+        <div class="set-box">
+          <label>Déficit Ligero (-300 a -500 kcal)</label>
+          <div style="font-size:1.3rem; font-weight:800; color:var(--info);">${deficitMin} – ${deficitMax} kcal</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">Pérdida de grasa sin arruinar el Engine</div>
+        </div>
+      `;
+    }
+
+    // --- 8-WEEK CHECKLIST ---
+    function renderChecklist() {
+      const table = document.getElementById("checklistTable");
+      let html = `<thead><tr><th>Hábito Diario / Semanal</th>`;
+      for (let w = 1; w <= 8; w++) html += `<th>Sem ${w}</th>`;
+      html += `</tr></thead><tbody>`;
+
+      CHECKLIST_ITEMS.forEach((item, idx) => {
+        html += `<tr><td>${item}</td>`;
+        for (let w = 1; w <= 8; w++) {
+          const key = `chk_w${w}_i${idx}`;
+          const checked = appData.checklist[key] ? "checked" : "";
+          html += `<td><input type="checkbox" ${checked} onchange="toggleCheck('${key}', this.checked)"></td>`;
+        }
+        html += `</tr>`;
+      });
+
+      // Score Row
+      html += `<tr style="background:rgba(245,158,11,0.1); font-weight:800;"><td>Puntuación Semanal (Ticks de 12) →</td>`;
+      for (let w = 1; w <= 8; w++) {
+        let score = 0;
+        for (let i = 0; i < 12; i++) {
+          if (appData.checklist[`chk_w${w}_i${i}`]) score++;
+        }
+        html += `<td id="chkScore_w${w}" style="color:var(--accent);">${score} / 12</td>`;
+      }
+      html += `</tr>`;
+
+      // Top Set Row
+      html += `<tr><td><strong>Main Lift: Squat / Deadlift Top Set (kg) →</strong></td>`;
+      for (let w = 1; w <= 8; w++) {
+        const val = appData.topSets[`top_w${w}`] || "";
+        html += `<td><input type="text" value="${val}" placeholder="kg" style="width:70px; text-align:center;" oninput="saveTopSet(${w}, this.value)"></td>`;
+      }
+      html += `</tr></tbody>`;
+      table.innerHTML = html;
+    }
+
+    function toggleCheck(key, isChecked) {
+      appData.checklist[key] = isChecked;
+      saveData();
+      renderChecklist();
+    }
+
+    function saveTopSet(week, val) {
+      appData.topSets[`top_w${week}`] = val;
+      saveData();
+    }
+
+    // --- BACKUP EXPORT / IMPORT ---
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+      const a = document.createElement("a");
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "hybrid_dad_backup.json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          appData = JSON.parse(e.target.result);
+          saveData();
+          initApp();
+          alert("Datos importados correctamente.");
+        } catch (err) {
+          alert("Archivo JSON inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // --- INIT ---
+    function initApp() {
+      document.getElementById("bodyWeightInput").value = appData.bodyWeight || 99;
+      renderWorkout();
+      loadBenchmarks();
+      calculateNutrition();
+      renderChecklist();
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>

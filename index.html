@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Hybrid Dad Blueprint — Sistema de Seguimiento y Cargas</title>
+  <title>The Hybrid Dad Blueprint — Sistema de Seguimiento y Cargas v2</title>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -190,6 +190,8 @@
       margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .card-title {
@@ -387,7 +389,7 @@
   <nav class="nav-tabs">
     <button class="tab-btn active" onclick="openTab('tab-tracker', this)">1. Entrenamiento y Cargas</button>
     <button class="tab-btn" onclick="openTab('tab-structure', this)">2. Estructura y Reglas</button>
-    <button class="tab-btn" onclick="openTab('tab-benchmarks', this)">3. Benchmarks y Descarga</button>
+    <button class="tab-btn" onclick="openTab('tab-benchmarks', this)">3. Benchmarks, RM y Descarga</button>
     <button class="tab-btn" onclick="openTab('tab-nutrition', this)">4. Nutrición y Logística</button>
     <button class="tab-btn" onclick="openTab('tab-checklist', this)">5. Checklist 8 Semanas</button>
   </nav>
@@ -400,7 +402,7 @@
         <div>
           <label style="font-size:0.8rem; color:var(--text-muted); display:block;">Semana del Bloque (1–8)</label>
           <select id="weekSelect" onchange="renderWorkout()">
-            <option value="1">Semana 1 — Encontrar cargas y test Benchmarks</option>
+            <option value="1">Semana 1 — Pesos Iniciales (Desde RM) y Benchmarks</option>
             <option value="2">Semana 2 — Progresión estándar</option>
             <option value="3">Semana 3 — Progresión (+1 intervalo Engine)</option>
             <option value="4">Semana 4 — Progresión estándar</option>
@@ -516,8 +518,110 @@
       </div>
     </section>
 
-    <!-- TAB 3: BENCHMARKS & DELOAD DETECTOR -->
+    <!-- TAB 3: RM CALCULATOR, BENCHMARKS & DELOAD DETECTOR -->
     <section id="tab-benchmarks" class="tab-content">
+
+      <!-- NEW CARD: 1RM CALCULATOR & WEEK 1 AUTO-POPULATION -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="card-title">Calculadora de RM de Básicos → Pesos Iniciales para la Semana 1</span>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
+              Introduce tu 1RM directo o un peso y repeticiones conocidos (ej. tu 5RM o 8RM). El sistema calcula tu 1RM estimado (fórmula de Epley) y determina automáticamente los pesos de trabajo de <strong>todos los ejercicios de la Semana 1</strong> ajustados al extremo inferior del rango de repeticiones y con el margen de fatiga exigido (RIR 1–2). A partir de la Semana 2, el sistema usará lo que hayas registrado realmente en la semana previa.
+            </p>
+          </div>
+          <button onclick="applyWeek1Weights(true)">Volcar Pesos Calculados a la Semana 1</button>
+        </div>
+
+        <div style="overflow-x:auto; margin-bottom:16px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Patrón Básico de Referencia</th>
+                <th>Opción A: Peso Conocido (kg) × Reps</th>
+                <th>Opción B: 1RM Directo / Calculado (kg)</th>
+                <th>Cargas Derivadas para la Semana 1 (Al inicio del rango a RIR 1–2)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Sentadilla Trasera (Back Squat)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Base de tren inferior dominante de rodilla</span></td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <input type="number" id="rm_w_sq" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('sq')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_sq" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('sq')">
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="rm_1rm_sq" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
+                </td>
+                <td id="preview_sq" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>2. Peso Muerto (Trap Bar / Barra)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Base de bisagra de cadera y cadena posterior</span></td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <input type="number" id="rm_w_dl" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('dl')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_dl" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('dl')">
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="rm_1rm_dl" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
+                </td>
+                <td id="preview_dl" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>3. Empuje Horizontal (Press Banca Barra)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Si usas mancuernas, pon la suma de ambas × 1.15</span></td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <input type="number" id="rm_w_bp" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('bp')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_bp" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('bp')">
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="rm_1rm_bp" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
+                </td>
+                <td id="preview_bp" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>4. Empuje Vertical (Overhead Press Barra)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Base para Press Militar, Push Press y hombro</span></td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <input type="number" id="rm_w_ohp" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('ohp')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_ohp" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('ohp')">
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="rm_1rm_ohp" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
+                </td>
+                <td id="preview_ohp" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>5. Tracción Horizontal (Remo Barra / Pecho Apoyado)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Peso total movido en remo con barra o máquina</span></td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <input type="number" id="rm_w_row" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('row')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_row" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('row')">
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="rm_1rm_row" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
+                </td>
+                <td id="preview_row" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="rmApplyStatus" class="alert-box badge-deload" style="margin-bottom:0;">
+          Al introducir tus RM aquí, la <strong>Semana 1</strong> mostrará automáticamente el peso objetivo en cada ejercicio y pre-rellenará las casillas que estén vacías. Si pulsas <em>«Volcar Pesos Calculados a la Semana 1»</em>, sobrescribirás todas las series de la Semana 1 con los cálculos exactos.
+        </div>
+      </div>
+
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
@@ -701,9 +805,9 @@
         restInfo: "Descanso: 2-3 min en Sentadilla | 60-90 s en superseries (RIR 1-2)",
         exercises: [
           { id: "sq", name: "1. Barbell Back Squat", type: "lower", isMain: true, warmupSets: 2, workSets: 2, minReps: 6, maxReps: 8, rir: "1-2", swap: "Goblet squat o DB front squat x 10" },
-          { id: "db_bp", name: "2A. Dumbbell Bench Press (Superserie con 2B)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 10, rir: "1-2", swap: "Press-ups con pies elevados" },
+          { id: "db_bp", name: "2A. Dumbbell Bench Press (Superserie con 2B)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 10, rir: "1-2", unitNote: "reps (kg por mancuerna)", swap: "Press-ups con pies elevados" },
           { id: "cs_row", name: "2B. Chest-Supported Row (Superserie con 2A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 10, maxReps: 12, rir: "1-2", swap: "Single-arm dumbbell row x 10/lado" },
-          { id: "split_sq", name: "3A. Dumbbell Split Squat (Superserie con 3B)", type: "lower", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 8, rir: "1-2", unitNote: "reps/pierna", swap: "Reverse lunge" },
+          { id: "split_sq", name: "3A. Dumbbell Split Squat (Superserie con 3B)", type: "lower", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 8, rir: "1-2", unitNote: "reps/pierna (kg por mancuerna)", swap: "Reverse lunge" },
           { id: "face_pull", name: "3B. Face Pulls (Superserie con 3A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 15, maxReps: 15, rir: "1-2", swap: "Band pull-aparts x 20" }
         ],
         finisher: "Engine Finisher (10-15 min): Bike o Rower, 40 s fuerte / 20 s suave × 12 rondas. ¿Sin máquina?: Kettlebell swings 15 + burpees 5, EMOM 12 min. (Anota calorías o rondas)."
@@ -726,7 +830,7 @@
         exercises: [
           { id: "hy_fsq", name: "Superserie 1A (Min 5-15): Front Squat o Goblet Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 8, rir: "2", swap: "Goblet Squat pesado" },
           { id: "hy_pull", name: "Superserie 1B (Min 5-15): Pull-ups", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 10, rir: "2", swap: "Band-assisted pull-ups" },
-          { id: "hy_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "Push press con barra" },
+          { id: "hy_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "Push press con barra" },
           { id: "hy_rdl", name: "Superserie 2B (Min 15-25): Romanian Deadlift", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "DB RDL" }
         ],
         finisher: "Bloque Conditioning (Min 25-40): 3 rondas por tiempo (2 min descanso entre rondas): 500m row + 10 KB swings pesados + 10 burpees over the bar + 200m run (o 20 cal bike). Escala difícil Sem 6-8: 4 rondas, 90s descanso, KB más pesada."
@@ -735,10 +839,10 @@
         title: "Sábado: The Hybrid Session (Versión Garaje / Sin Máquinas — 45 Min)",
         restInfo: "Superseries a RIR 2, 90 s descanso. Ideal para entrenar con los niños cerca.",
         exercises: [
-          { id: "hg_fsq", name: "Superserie 1A (Min 5-15): Dumbbell Front Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "Goblet Squat" },
-          { id: "hg_row", name: "Superserie 1B (Min 5-15): Single-Arm Dumbbell Row", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps/brazo", swap: "Remo con banda" },
-          { id: "hg_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "Press militar mancuernas" },
-          { id: "hg_rdl", name: "Superserie 2B (Min 15-25): Dumbbell RDL", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", swap: "KB Deadlift" }
+          { id: "hg_fsq", name: "Superserie 1A (Min 5-15): Dumbbell Front Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "Goblet Squat" },
+          { id: "hg_row", name: "Superserie 1B (Min 5-15): Single-Arm Dumbbell Row", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps/brazo (kg mancuerna)", swap: "Remo con banda" },
+          { id: "hg_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "Press militar mancuernas" },
+          { id: "hg_rdl", name: "Superserie 2B (Min 15-25): Dumbbell RDL", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "KB Deadlift" }
         ],
         finisher: "Bloque Conditioning (Min 25-40): Complejo con mancuernas (5 rondas, sin soltar las mancuernas): 6 deadlifts + 6 hang cleans + 6 front squats + 6 push presses + 6 bent-over rows + 200m carrera o 60s comba. Descanso 90 s."
       }
@@ -816,10 +920,15 @@
     let appData = JSON.parse(localStorage.getItem("hybridDadBlueprintData")) || {
       workouts: {},
       benchmarks: {},
+      rms: { sq: "", dl: "", bp: "", ohp: "", row: "", w_sq: "", r_sq: "", w_dl: "", r_dl: "", w_bp: "", r_bp: "", w_ohp: "", r_ohp: "", w_row: "", r_row: "" },
       checklist: {},
       topSets: {},
       bodyWeight: 99
     };
+
+    if (!appData.rms) {
+      appData.rms = { sq: "", dl: "", bp: "", ohp: "", row: "", w_sq: "", r_sq: "", w_dl: "", r_dl: "", w_bp: "", r_bp: "", w_ohp: "", r_ohp: "", w_row: "", r_row: "" };
+    }
 
     function saveData() {
       localStorage.setItem("hybridDadBlueprintData", JSON.stringify(appData));
@@ -833,11 +942,166 @@
       btn.classList.add('active');
     }
 
+    // --- 1RM & WEEK 1 STARTING WEIGHT CALCULATOR ---
+    function roundStep(val, step = 2.5) {
+      if (!val || val <= 0) return 0;
+      return Math.round(val / step) * step;
+    }
+
+    // Epley inverse: Weight for (targetReps + RIR) from 1RM
+    function loadForRepsAndRIR(oneRM, reps, rir = 2, ratio = 1.0, step = 2.5) {
+      const rm = parseFloat(oneRM);
+      if (!rm || rm <= 0) return 0;
+      const effectiveMaxReps = reps + rir;
+      const rawWeight = (rm * ratio) / (1 + 0.0333 * effectiveMaxReps);
+      return roundStep(rawWeight, step);
+    }
+
+    function getSuggestedWeek1Weight(exId) {
+      const rms = appData.rms || {};
+      const sq = parseFloat(rms.sq) || 0;
+      const dl = parseFloat(rms.dl) || 0;
+      const bp = parseFloat(rms.bp) || 0;
+      const ohp = parseFloat(rms.ohp) || 0;
+      const row = parseFloat(rms.row) || 0;
+
+      switch (exId) {
+        // Strength A
+        case "sq":       return loadForRepsAndRIR(sq, 6, 2, 1.0, 2.5);     // Back Squat: 6 reps @ RIR 2 (~79% 1RM)
+        case "db_bp":    return loadForRepsAndRIR(bp, 8, 2, 0.42, 2.0);    // DB Bench (por mancuerna): 8 reps @ RIR 2 (~31.5% 1RM barra/mano)
+        case "cs_row":   return loadForRepsAndRIR(row, 10, 2, 1.0, 2.5);   // CS Row: 10 reps @ RIR 2 (~71% 1RM)
+        case "split_sq": return loadForRepsAndRIR(sq, 8, 2, 0.28, 2.0);    // DB Split Squat (por mancuerna): 8 reps/pierna @ RIR 2
+        case "face_pull":return loadForRepsAndRIR(ohp, 15, 2, 0.45, 2.5);  // Face Pulls: 15 reps @ RIR 2
+        // Strength B
+        case "dl":         return loadForRepsAndRIR(dl, 5, 2, 1.0, 2.5);   // Trap Bar/BB Deadlift: 5 reps @ RIR 2 (~81% 1RM)
+        case "ohp":        return loadForRepsAndRIR(ohp, 6, 2, 1.0, 2.5);  // Standing OHP: 6 reps @ RIR 2 (~79% 1RM)
+        case "pullup":     return loadForRepsAndRIR(row, 6, 2, 0.95, 2.5); // Lat Pulldown / Pull-up ref
+        case "hip_thrust": return loadForRepsAndRIR(dl, 8, 2, 0.95, 2.5);  // Barbell Hip Thrust: 8 reps @ RIR 2
+        case "knee_raise": return 0;                                       // Peso corporal
+        // Hybrid Gym
+        case "hy_fsq":  return loadForRepsAndRIR(sq, 6, 2, 0.82, 2.5);     // Front Squat (~82% del Back Squat) a 6 reps @ RIR 2
+        case "hy_pull": return 0;                                          // Dominadas peso corporal
+        case "hy_pp":   return loadForRepsAndRIR(ohp, 8, 2, 0.48, 2.0);    // DB Push Press (por mancuerna) a 8 reps @ RIR 2
+        case "hy_rdl":  return loadForRepsAndRIR(dl, 8, 2, 0.75, 2.5);     // RDL con barra (~75% del DL) a 8 reps @ RIR 2
+        // Hybrid Garage
+        case "hg_fsq":  return loadForRepsAndRIR(sq, 8, 2, 0.32, 2.0);     // DB Front Squat (por mancuerna) a 8 reps @ RIR 2
+        case "hg_row":  return loadForRepsAndRIR(row, 10, 2, 0.46, 2.0);   // Single-Arm DB Row (por mancuerna) a 10 reps @ RIR 2
+        case "hg_pp":   return loadForRepsAndRIR(ohp, 8, 2, 0.48, 2.0);    // DB Push Press (por mancuerna) a 8 reps @ RIR 2
+        case "hg_rdl":  return loadForRepsAndRIR(dl, 10, 2, 0.34, 2.0);    // DB RDL (por mancuerna) a 10 reps @ RIR 2
+        default: return 0;
+      }
+    }
+
+    function calcFromSubmax(lift) {
+      const w = parseFloat(document.getElementById(`rm_w_${lift}`).value) || 0;
+      const r = parseFloat(document.getElementById(`rm_r_${lift}`).value) || 0;
+      appData.rms[`w_${lift}`] = w || "";
+      appData.rms[`r_${lift}`] = r || "";
+
+      if (w > 0 && r > 0) {
+        const est1RM = r === 1 ? w : Math.round((w * (1 + 0.0333 * r)) * 2) / 2;
+        document.getElementById(`rm_1rm_${lift}`).value = est1RM;
+        appData.rms[lift] = est1RM;
+      }
+      saveRMs();
+    }
+
+    function saveRMs() {
+      const lifts = ["sq", "dl", "bp", "ohp", "row"];
+      lifts.forEach(l => {
+        appData.rms[l] = document.getElementById(`rm_1rm_${l}`).value;
+      });
+      saveData();
+      updateRMPreviews();
+      applyWeek1Weights(false); // Rellena automáticamente solo las casillas de Semana 1 que estén vacías
+      renderWorkout();
+    }
+
+    function loadRMs() {
+      const lifts = ["sq", "dl", "bp", "ohp", "row"];
+      lifts.forEach(l => {
+        if (appData.rms[`w_${l}`]) document.getElementById(`rm_w_${l}`).value = appData.rms[`w_${l}`];
+        if (appData.rms[`r_${l}`]) document.getElementById(`rm_r_${l}`).value = appData.rms[`r_${l}`];
+        if (appData.rms[l]) document.getElementById(`rm_1rm_${l}`).value = appData.rms[l];
+      });
+      updateRMPreviews();
+    }
+
+    function updateRMPreviews() {
+      const sqW = getSuggestedWeek1Weight("sq");
+      document.getElementById("preview_sq").innerHTML = sqW > 0
+        ? `<strong>Back Squat (6r):</strong> ${sqW} kg | <strong>Front Sq (6r):</strong> ${getSuggestedWeek1Weight("hy_fsq")} kg | <strong>Split Sq (8r):</strong> ${getSuggestedWeek1Weight("split_sq")} kg/manc.`
+        : "Introduce tu RM para ver cargas";
+
+      const dlW = getSuggestedWeek1Weight("dl");
+      document.getElementById("preview_dl").innerHTML = dlW > 0
+        ? `<strong>Deadlift (5r):</strong> ${dlW} kg | <strong>Hip Thrust (8r):</strong> ${getSuggestedWeek1Weight("hip_thrust")} kg | <strong>RDL (8r):</strong> ${getSuggestedWeek1Weight("hy_rdl")} kg`
+        : "Introduce tu RM para ver cargas";
+
+      const bpW = getSuggestedWeek1Weight("db_bp");
+      document.getElementById("preview_bp").innerHTML = bpW > 0
+        ? `<strong>DB Bench Press (8r):</strong> ${bpW} kg por mancuerna`
+        : "Introduce tu RM para ver cargas";
+
+      const ohpW = getSuggestedWeek1Weight("ohp");
+      document.getElementById("preview_ohp").innerHTML = ohpW > 0
+        ? `<strong>Overhead Press (6r):</strong> ${ohpW} kg | <strong>DB Push Press (8r):</strong> ${getSuggestedWeek1Weight("hy_pp")} kg/manc.`
+        : "Introduce tu RM para ver cargas";
+
+      const rowW = getSuggestedWeek1Weight("cs_row");
+      document.getElementById("preview_row").innerHTML = rowW > 0
+        ? `<strong>CS Row (10r):</strong> ${rowW} kg | <strong>DB Row (10r):</strong> ${getSuggestedWeek1Weight("hg_row")} kg/manc.`
+        : "Introduce tu RM para ver cargas";
+    }
+
+    // Volcar los pesos calculados a la Semana 1
+    function applyWeek1Weights(overwriteAll = false) {
+      Object.keys(SESSIONS).forEach(sessionKey => {
+        const session = SESSIONS[sessionKey];
+        session.exercises.forEach(ex => {
+          const sugWeight = getSuggestedWeek1Weight(ex.id);
+          if (sugWeight > 0) {
+            const storageKey = `w1_${sessionKey}_${ex.id}`;
+            if (!appData.workouts[storageKey]) {
+              appData.workouts[storageKey] = { sets: [] };
+            }
+            for (let s = 0; s < ex.workSets; s++) {
+              const currentSet = appData.workouts[storageKey].sets[s] || { weight: "", reps: "", rir: "" };
+              if (overwriteAll || currentSet.weight === "" || currentSet.weight === undefined) {
+                appData.workouts[storageKey].sets[s] = {
+                  weight: sugWeight,
+                  reps: currentSet.reps !== "" ? currentSet.reps : ex.minReps,
+                  rir: currentSet.rir !== "" ? currentSet.rir : 2
+                };
+              }
+            }
+          }
+        });
+      });
+      saveData();
+      renderWorkout();
+      if (overwriteAll) {
+        const statusEl = document.getElementById("rmApplyStatus");
+        statusEl.className = "alert-box badge-up";
+        statusEl.innerHTML = `<strong>¡Pesos volcados con éxito!</strong> Se han actualizado las cargas iniciales y repeticiones objetivo de la <strong>Semana 1</strong> en todas las sesiones. A partir de la Semana 2 el seguimiento dependerá de tus registros reales.`;
+      }
+    }
+
     // --- PROGRESSION ENGINE ---
     function getProgressionAdvice(ex, week, sessionKey) {
       const w = parseInt(week);
       if (w === 1) {
-        return { badgeClass: "badge-deload", text: `Semana 1: Encuentra tu carga de trabajo para hacer ${ex.minReps}${ex.maxReps !== ex.minReps ? '-' + ex.maxReps : ''} reps a RIR ${ex.rir}.` };
+        const sug = getSuggestedWeek1Weight(ex.id);
+        if (sug > 0) {
+          return {
+            badgeClass: "badge-up",
+            text: `Semana 1 (Calculado por RM): Usa ${sug} kg para ${ex.minReps} reps a RIR ${ex.rir}.`
+          };
+        }
+        return {
+          badgeClass: "badge-deload",
+          text: `Semana 1: Introduce tus RM en la Pestaña 3 o busca un peso para ${ex.minReps}${ex.maxReps !== ex.minReps ? '-' + ex.maxReps : ''} reps a RIR ${ex.rir}.`
+        };
       }
 
       const prevKey = `w${w - 1}_${sessionKey}_${ex.id}`;
@@ -886,7 +1150,7 @@
 
     function calcWarmupText(ex, currentWeight) {
       const w = parseFloat(currentWeight);
-      if (!w || w <= 0) return "Introduce el peso de la Serie 1 para calcular las series de calentamiento automáticamente.";
+      if (!w || w <= 0) return "Introduce el peso de la Serie 1 (o tus RM en la Pestaña 3) para calcular las series de calentamiento automáticamente.";
       const round25 = (val) => Math.round(val / 2.5) * 2.5;
       if (ex.isMain) {
         return `Calentamiento Principal (2 series): Serie Aprox. 1: <strong>${round25(w * 0.5)} kg × 8 reps</strong> (~50%) | Serie Aprox. 2: <strong>${round25(w * 0.75)} kg × 4 reps</strong> (~75%).`;
@@ -904,8 +1168,8 @@
 
       // Update Banner
       const bannerMessages = {
-        1: "SEMANA 1: Encuentra tus pesos de trabajo (RIR 1-2) y registra tus Benchmarks iniciales en la Pestaña 3.",
-        2: "SEMANA 2: Progresa cada levantamiento en repeticiones o peso según lo registrado en la Semana 1.",
+        1: "SEMANA 1: Pesos iniciales calculados automáticamente desde tus RM (Pestaña 3) al inicio del rango de repeticiones (RIR 1-2). Ajusta si es necesario y anota tus Benchmarks.",
+        2: "SEMANA 2: Progresa cada levantamiento en repeticiones o peso según lo registrado realmente en la Semana 1.",
         3: "SEMANA 3: Sube repeticiones/peso en fuerza y añade +1 intervalo en Engine.",
         4: "SEMANA 4: Última semana del primer bloque de carga antes de la descarga. Supera el libro de notas.",
         5: "SEMANA 5 (DESCARGA OBLIGATORIA): Usa los mismos pesos de la Semana 4, haz SOLO 1 serie de trabajo por ejercicio y ejecuta el Engine a ritmo suave conversacional.",
@@ -968,7 +1232,10 @@
         const savedEx = appData.workouts[storageKey] || { sets: [] };
         const advice = getProgressionAdvice(ex, week, sessionKey);
         const effectiveWorkSets = (week === 5) ? 1 : ex.workSets;
-        const firstWeight = (savedEx.sets[0] && savedEx.sets[0].weight) ? savedEx.sets[0].weight : "";
+        const sugW1 = (week === 1) ? getSuggestedWeek1Weight(ex.id) : "";
+        const firstWeight = (savedEx.sets[0] && savedEx.sets[0].weight !== "" && savedEx.sets[0].weight !== undefined)
+          ? savedEx.sets[0].weight
+          : (sugW1 > 0 ? sugW1 : "");
 
         html += `
           <div class="exercise-item">
@@ -991,11 +1258,12 @@
 
         for (let s = 0; s < effectiveWorkSets; s++) {
           const setObj = savedEx.sets[s] || { weight: "", reps: "", rir: "" };
+          const dispWeight = (setObj.weight !== "" && setObj.weight !== undefined) ? setObj.weight : (week === 1 && sugW1 > 0 ? sugW1 : "");
           html += `
             <div class="set-box">
               <label>Serie Efectiva ${s + 1}</label>
               <div class="set-inputs">
-                <input type="number" step="0.5" placeholder="Peso (kg)" value="${setObj.weight}"
+                <input type="number" step="0.5" placeholder="Peso (kg)" value="${dispWeight}"
                   oninput="saveSet('${storageKey}', ${s}, 'weight', this.value, '${ex.id}', '${sessionKey}')">
                 <input type="number" placeholder="Reps (${ex.minReps}-${ex.maxReps})" value="${setObj.reps}"
                   oninput="saveSet('${storageKey}', ${s}, 'reps', this.value, '${ex.id}', '${sessionKey}')">
@@ -1243,6 +1511,9 @@
       reader.onload = (e) => {
         try {
           appData = JSON.parse(e.target.result);
+          if (!appData.rms) {
+            appData.rms = { sq: "", dl: "", bp: "", ohp: "", row: "", w_sq: "", r_sq: "", w_dl: "", r_dl: "", w_bp: "", r_bp: "", w_ohp: "", r_ohp: "", w_row: "", r_row: "" };
+          }
           saveData();
           initApp();
           alert("Datos importados correctamente.");
@@ -1256,6 +1527,7 @@
     // --- INIT ---
     function initApp() {
       document.getElementById("bodyWeightInput").value = appData.bodyWeight || 99;
+      loadRMs();
       renderWorkout();
       loadBenchmarks();
       calculateNutrition();

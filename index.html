@@ -2,106 +2,123 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Hybrid Dad Blueprint — Sistema de Seguimiento y Cargas v2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>The Hybrid Dad Blueprint — Seguimiento, Cargas y Evolución v3</title>
+  <!-- Chart.js para las gráficas interactivas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --bg-input: #0b1120;
-      --border: #334155;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --success: #10b981;
-      --danger: #ef4444;
-      --info: #3b82f6;
-      --radius: 8px;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-input: #f1f5f9;
+      --border: #e2e8f0;
+      --border-focus: #2563eb;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #d97706; /* Ámbar sobrio */
+      --accent-light: #fef3c7;
+      --accent-hover: #b45309;
+      --primary: #2563eb; /* Azul deportivo técnico */
+      --primary-light: #eff6ff;
+      --success: #15803d;
+      --success-light: #dcfce7;
+      --danger: #b91c1c;
+      --danger-light: #fee2e2;
+      --radius: 10px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
       line-height: 1.5;
-      padding-bottom: 60px;
+      padding-bottom: 80px;
     }
 
     /* HEADER & TIMER BAR */
     header {
-      background: #090d16;
+      background: #ffffff;
       border-bottom: 2px solid var(--accent);
-      padding: 16px 24px;
+      padding: 12px 16px;
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
     .brand h1 {
-      font-size: 1.35rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: -0.2px;
       text-transform: uppercase;
       color: var(--text-main);
     }
 
     .brand span {
       color: var(--accent);
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 700;
       display: block;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     .timer-box {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: var(--bg-card);
-      padding: 8px 14px;
+      gap: 10px;
+      background: var(--bg-input);
+      padding: 6px 12px;
       border-radius: var(--radius);
       border: 1px solid var(--border);
+      width: auto;
     }
 
     .timer-display {
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
-      color: var(--accent);
-      min-width: 75px;
+      color: var(--text-main);
+      min-width: 65px;
     }
 
     .timer-phase {
-      font-size: 0.75rem;
-      padding: 3px 8px;
+      font-size: 0.7rem;
+      padding: 2px 6px;
       border-radius: 4px;
-      background: var(--bg-input);
-      color: var(--text-muted);
-      font-weight: 600;
+      background: #ffffff;
+      color: var(--primary);
+      font-weight: 700;
+      border: 1px solid var(--border);
     }
 
     button {
       background: var(--accent);
-      color: #000;
+      color: #ffffff;
       border: none;
       padding: 8px 14px;
       border-radius: 6px;
       font-weight: 700;
       cursor: pointer;
-      font-size: 0.85rem;
-      transition: background 0.15s;
+      font-size: 0.82rem;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
     button:hover {
@@ -109,49 +126,71 @@
     }
 
     button.secondary {
-      background: var(--bg-input);
+      background: #ffffff;
       color: var(--text-main);
       border: 1px solid var(--border);
     }
 
     button.secondary:hover {
-      border-color: var(--accent);
+      background: var(--bg-input);
+      border-color: #cbd5e1;
     }
 
-    /* NAVIGATION TABS */
+    button.primary-btn {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    button.primary-btn:hover {
+      background: #1d4ed8;
+    }
+
+    /* NAVIGATION TABS (Mobile First with Scroll Snap) */
     .nav-tabs {
       display: flex;
       overflow-x: auto;
-      background: var(--bg-card);
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
-      padding: 0 24px;
-      gap: 8px;
+      padding: 0 12px;
+      gap: 4px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      position: sticky;
+      top: 57px;
+      z-index: 90;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
     }
 
     .tab-btn {
       background: transparent;
       color: var(--text-muted);
-      padding: 14px 18px;
+      padding: 12px 14px;
       border-radius: 0;
       border-bottom: 3px solid transparent;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 0.85rem;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .tab-btn:hover {
-      background: rgba(255,255,255,0.03);
+      background: transparent;
       color: var(--text-main);
     }
 
     .tab-btn.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: transparent;
     }
 
     .container {
       max-width: 1200px;
-      margin: 24px auto;
-      padding: 0 16px;
+      margin: 16px auto;
+      padding: 0 12px;
     }
 
     .tab-content {
@@ -166,28 +205,29 @@
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 20px;
+      gap: 16px;
     }
 
     .grid-3 {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
     }
 
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
       flex-wrap: wrap;
@@ -195,129 +235,167 @@
     }
 
     .card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
+      font-size: 1.02rem;
+      font-weight: 800;
       color: var(--text-main);
     }
 
     .badge {
       display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    .badge-up { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
-    .badge-hold { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
-    .badge-deload { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
-    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .badge-up { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-hold { background: var(--accent-light); color: var(--accent); border: 1px solid #fde68a; }
+    .badge-deload { background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-danger { background: var(--danger-light); color: var(--danger); border: 1px solid #fecaca; }
 
     /* CONTROLS BAR */
     .controls-bar {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 12px;
-      align-items: center;
       background: var(--bg-card);
-      padding: 16px;
+      padding: 14px;
       border-radius: var(--radius);
       border: 1px solid var(--border);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media (min-width: 768px) {
+      .controls-bar {
+        flex-direction: row;
+        align-items: center;
+      }
     }
 
     select, input[type="number"], input[type="text"] {
       background: var(--bg-input);
       color: var(--text-main);
       border: 1px solid var(--border);
-      padding: 8px 12px;
+      padding: 9px 12px;
       border-radius: 6px;
       font-size: 0.9rem;
+      width: 100%;
+      -webkit-appearance: none;
     }
 
     select:focus, input:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--border-focus);
+      background: #ffffff;
     }
 
-    /* EXERCISE LOGGING TABLE */
+    /* EXERCISE LOGGING TABLE (Mobile Friendly Stack) */
     .exercise-item {
-      background: var(--bg-input);
+      background: #ffffff;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
     }
 
     .exercise-top {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 10px;
+      flex-direction: column;
+      gap: 6px;
       margin-bottom: 10px;
     }
 
+    @media (min-width: 640px) {
+      .exercise-top {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+    }
+
     .exercise-name {
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: var(--accent);
+      font-weight: 800;
+      font-size: 0.98rem;
+      color: var(--text-main);
     }
 
     .exercise-meta {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      line-height: 1.4;
     }
 
     .warmup-helper {
-      background: rgba(59, 130, 246, 0.1);
-      border-left: 3px solid var(--info);
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      color: #93c5fd;
-      margin-bottom: 12px;
+      background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      color: #1e40af;
+      margin-bottom: 10px;
       border-radius: 0 4px 4px 0;
+      line-height: 1.4;
     }
 
     .sets-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 480px) {
+      .sets-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
     }
 
     .set-box {
-      background: var(--bg-card);
+      background: var(--bg-input);
       padding: 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border);
     }
 
     .set-box label {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       margin-bottom: 6px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
     }
 
     .set-inputs {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
     }
 
     .set-inputs input {
-      width: 100%;
+      padding: 8px;
+      font-size: 0.88rem;
+      text-align: center;
     }
 
-    /* TABLES */
+    /* TABLES (Responsive wrapping) */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #ffffff;
+      margin-bottom: 12px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      min-width: 500px;
     }
 
     th, td {
@@ -327,43 +405,107 @@
     }
 
     th {
-      color: var(--accent);
+      color: var(--text-main);
       font-weight: 700;
-      background: rgba(0,0,0,0.2);
+      background: #f8fafc;
     }
 
     .checklist-table th, .checklist-table td {
       text-align: center;
-      padding: 8px 6px;
+      padding: 8px 4px;
     }
 
     .checklist-table td:first-child {
       text-align: left;
       font-weight: 500;
+      min-width: 220px;
     }
 
     input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       accent-color: var(--accent);
       cursor: pointer;
     }
 
     .alert-box {
-      padding: 14px 16px;
+      padding: 12px 14px;
       border-radius: var(--radius);
-      margin-bottom: 16px;
-      font-size: 0.9rem;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
+      line-height: 1.45;
     }
 
     .small-list {
       padding-left: 18px;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
     }
 
     .small-list li {
       margin-bottom: 6px;
+    }
+
+    /* EXPORT MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: var(--radius);
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    textarea.export-box {
+      width: 100%;
+      height: 280px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      white-space: pre;
+      margin-bottom: 14px;
+      resize: vertical;
+    }
+
+    /* CHART WRAPPERS */
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .chart-container {
+        height: 300px;
+      }
     }
   </style>
 </head>
@@ -373,25 +515,31 @@
   <header>
     <div class="brand">
       <h1>The Hybrid Dad Blueprint</h1>
-      <span>EDITION 2 (2026) — SISTEMA DE GESTIÓN DE CARGAS (8 SEMANAS)</span>
+      <span>EDITION 2 (2026) — SISTEMA DE SEGUIMIENTO Y CARGAS (8 SEMANAS)</span>
     </div>
-    <div class="timer-box">
-      <div>
-        <div class="timer-display" id="timerDisplay">00:00</div>
-        <div class="timer-phase" id="timerPhase">Listo (Plantilla 45 min)</div>
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <div class="timer-box">
+        <div>
+          <div class="timer-display" id="timerDisplay">00:00</div>
+          <div class="timer-phase" id="timerPhase">Listo (45 min)</div>
+        </div>
+        <button onclick="toggleTimer()" id="timerBtn" style="padding:6px 10px;">Iniciar</button>
+        <button class="secondary" onclick="resetTimer()" style="padding:6px 10px;">↺</button>
       </div>
-      <button onclick="toggleTimer()" id="timerBtn">Iniciar</button>
-      <button class="secondary" onclick="resetTimer()">Reiniciar</button>
+      <button class="primary-btn" onclick="openExportModal()" title="Exportar resumen semanal en texto para notas o compartir">
+        📋 Exportar Resumen
+      </button>
     </div>
   </header>
 
-  <!-- TABS -->
+  <!-- NAVIGATION TABS -->
   <nav class="nav-tabs">
     <button class="tab-btn active" onclick="openTab('tab-tracker', this)">1. Entrenamiento y Cargas</button>
-    <button class="tab-btn" onclick="openTab('tab-structure', this)">2. Estructura y Reglas</button>
-    <button class="tab-btn" onclick="openTab('tab-benchmarks', this)">3. Benchmarks, RM y Descarga</button>
-    <button class="tab-btn" onclick="openTab('tab-nutrition', this)">4. Nutrición y Logística</button>
-    <button class="tab-btn" onclick="openTab('tab-checklist', this)">5. Checklist 8 Semanas</button>
+    <button class="tab-btn" onclick="openTab('tab-charts', this)">2. Gráficas y Evolución</button>
+    <button class="tab-btn" onclick="openTab('tab-benchmarks', this)">3. RM y Benchmarks</button>
+    <button class="tab-btn" onclick="openTab('tab-structure', this)">4. Estructura y Reglas</button>
+    <button class="tab-btn" onclick="openTab('tab-nutrition', this)">5. Nutrición y Setup</button>
+    <button class="tab-btn" onclick="openTab('tab-checklist', this)">6. Checklist 8 Semanas</button>
   </nav>
 
   <div class="container">
@@ -399,8 +547,8 @@
     <!-- TAB 1: WORKOUT & PROGRESSION TRACKER -->
     <section id="tab-tracker" class="tab-content active">
       <div class="controls-bar">
-        <div>
-          <label style="font-size:0.8rem; color:var(--text-muted); display:block;">Semana del Bloque (1–8)</label>
+        <div style="flex:1;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Semana del Bloque (1–8)</label>
           <select id="weekSelect" onchange="renderWorkout()">
             <option value="1">Semana 1 — Pesos Iniciales (Desde RM) y Benchmarks</option>
             <option value="2">Semana 2 — Progresión estándar</option>
@@ -413,8 +561,8 @@
           </select>
         </div>
 
-        <div>
-          <label style="font-size:0.8rem; color:var(--text-muted); display:block;">Sesión a Registrar</label>
+        <div style="flex:1;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Sesión a Registrar</label>
           <select id="sessionSelect" onchange="renderWorkout()">
             <option value="strengthA">Sesión 1: Strength A (Lunes - Squat / Push / Pull)</option>
             <option value="engine">Sesión 2: Engine Day (Martes - 4 Menús)</option>
@@ -424,9 +572,9 @@
           </select>
         </div>
 
-        <div style="margin-left:auto; display:flex; gap:8px;">
-          <button class="secondary" onclick="exportData()">Exportar JSON</button>
-          <button class="secondary" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+        <div style="display:flex; gap:6px; align-items:flex-end;">
+          <button class="secondary" onclick="exportData()" title="Guardar copia JSON">💾 Exportar JSON</button>
+          <button class="secondary" onclick="document.getElementById('importFile').click()" title="Cargar copia JSON">📂 Importar JSON</button>
           <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
         </div>
       </div>
@@ -437,11 +585,11 @@
       <!-- WARMUP REMINDER -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Bloque 1: Calentamiento Estándar (Minutos 0:00 – 5:00)</span>
-          <span class="badge badge-deload">Obligatorio — Nunca omitir</span>
+          <span class="card-title">Bloque 1: Calentamiento Dinámico (0:00 – 5:00)</span>
+          <span class="badge badge-deload">Obligatorio</span>
         </div>
-        <p style="font-size:0.9rem; color:var(--text-muted);">
-          <strong>Movilidad dinámica y activación (5 min):</strong> 2 minutos suaves en bicicleta o remo + 10 sentadillas con peso corporal + 10 flexiones + 10 <em>band pull-aparts</em> + 10 bisagras de cadera + 30 s de apertura de cadera por lado. Acto seguido, realiza las series de aproximación del primer levantamiento.
+        <p style="font-size:0.85rem; color:var(--text-muted);">
+          <strong>Activación (5 min):</strong> 2 min suaves en bicicleta o remo + 10 sentadillas libres + 10 flexiones + 10 <em>band pull-aparts</em> + 10 bisagras de cadera + 30 s apertura cadera/lado. Luego pasa a las series de aproximación del primer levantamiento.
         </p>
       </div>
 
@@ -451,11 +599,11 @@
       <!-- CORE & CARRIES REMINDER -->
       <div class="card" id="coreCard">
         <div class="card-header">
-          <span class="card-title">Bloque 4: Core + Acarreos (Minutos 40:00 – 45:00)</span>
-          <span class="badge badge-up">Calidad sobre velocidad</span>
+          <span class="card-title">Bloque 4: Core + Acarreos (40:00 – 45:00)</span>
+          <span class="badge badge-up">Calidad > Velocidad</span>
         </div>
-        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">
-          <strong>2 rondas combinando 1 acarreo + 1 ejercicio de core:</strong> <em>Suitcase carry</em> (20 m por mano), <em>Farmer's walk</em> (40 m pesado), <em>Dead bug</em> (10/lado) o variaciones de plancha (45 s).
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">
+          <strong>2 rondas (1 acarreo + 1 core):</strong> <em>Suitcase carry</em> (20m/mano), <em>Farmer's walk</em> (40m pesado), <em>Dead bug</em> (10/lado) o planchas (45s).
         </p>
         <div class="sets-grid">
           <div class="set-box">
@@ -466,36 +614,278 @@
       </div>
     </section>
 
-    <!-- TAB 2: WEEKLY STRUCTURE & RULES -->
+    <!-- TAB 2: INTERACTIVE CHARTS & PROGRESSION -->
+    <section id="tab-charts" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Evolución de Fuerza: Sentadilla y Peso Muerto</span>
+            <span class="badge badge-up">Top Set (kg) Semanas 1 a 8</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">
+            Progresión de la carga de trabajo en la primera serie efectiva de Back Squat (Lunes) y Trap Bar / Deadlift (Jueves).
+          </p>
+          <div class="chart-container">
+            <canvas id="strengthChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Evolución de Rendimiento Engine (Bicicleta Erg)</span>
+            <span class="badge badge-deload">Calorías en Bloques Fuertes</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">
+            Calorías acumuladas en los minutos de alta intensidad del Menú 2 o remate de bicicleta.
+          </p>
+          <div class="chart-container">
+            <canvas id="engineChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Cumplimiento del Checklist Semanal</span>
+            <span class="badge badge-hold">Objetivo: 12/12 Ticks</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">
+            Consistencia de los 12 hábitos clave registrados semana a semana.
+          </p>
+          <div class="chart-container">
+            <canvas id="adherenceChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Radar de Benchmarks (Semana 1 vs. Semana 8)</span>
+            <span class="badge badge-up">Nivel Relativo (0-100)</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">
+            Comparativa directa de las 5 capacidades del padre híbrido entre el inicio y el final del bloque de 8 semanas.
+          </p>
+          <div class="chart-container">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: RM CALCULATOR & BENCHMARKS -->
+    <section id="tab-benchmarks" class="tab-content">
+      <!-- 1RM CALCULATOR -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="card-title">Calculadora de RM de Básicos → Pesos Iniciales Semana 1</span>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">
+              Introduce tu 1RM directo o un peso submáximo conocido (ej. 5RM o 8RM). Se calcularán automáticamente los pesos de trabajo de la Semana 1 al inicio del rango a RIR 1–2.
+            </p>
+          </div>
+          <button class="primary-btn" onclick="applyWeek1Weights(true)" style="margin-top:6px;">Volcar a Semana 1</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Patrón Básico</th>
+                <th>Opción A: Peso × Reps</th>
+                <th>Opción B: 1RM (kg)</th>
+                <th>Cargas Semana 1 (Base rango @ RIR 1–2)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sentadilla Trasera</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Dominante rodilla</span></td>
+                <td>
+                  <div style="display:flex; gap:4px; align-items:center;">
+                    <input type="number" id="rm_w_sq" placeholder="kg" style="width:75px;" oninput="calcFromSubmax('sq')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_sq" placeholder="reps" style="width:60px;" oninput="calcFromSubmax('sq')">
+                  </div>
+                </td>
+                <td><input type="number" id="rm_1rm_sq" step="0.5" placeholder="1RM kg" style="width:90px; font-weight:700;" oninput="saveRMs()"></td>
+                <td id="preview_sq" style="font-size:0.8rem; color:var(--text-muted);">Introduce RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>Peso Muerto</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Bisagra / Cadena post.</span></td>
+                <td>
+                  <div style="display:flex; gap:4px; align-items:center;">
+                    <input type="number" id="rm_w_dl" placeholder="kg" style="width:75px;" oninput="calcFromSubmax('dl')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_dl" placeholder="reps" style="width:60px;" oninput="calcFromSubmax('dl')">
+                  </div>
+                </td>
+                <td><input type="number" id="rm_1rm_dl" step="0.5" placeholder="1RM kg" style="width:90px; font-weight:700;" oninput="saveRMs()"></td>
+                <td id="preview_dl" style="font-size:0.8rem; color:var(--text-muted);">Introduce RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>Press Banca Barra</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Empuje horizontal</span></td>
+                <td>
+                  <div style="display:flex; gap:4px; align-items:center;">
+                    <input type="number" id="rm_w_bp" placeholder="kg" style="width:75px;" oninput="calcFromSubmax('bp')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_bp" placeholder="reps" style="width:60px;" oninput="calcFromSubmax('bp')">
+                  </div>
+                </td>
+                <td><input type="number" id="rm_1rm_bp" step="0.5" placeholder="1RM kg" style="width:90px; font-weight:700;" oninput="saveRMs()"></td>
+                <td id="preview_bp" style="font-size:0.8rem; color:var(--text-muted);">Introduce RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>Overhead Press (OHP)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Empuje vertical</span></td>
+                <td>
+                  <div style="display:flex; gap:4px; align-items:center;">
+                    <input type="number" id="rm_w_ohp" placeholder="kg" style="width:75px;" oninput="calcFromSubmax('ohp')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_ohp" placeholder="reps" style="width:60px;" oninput="calcFromSubmax('ohp')">
+                  </div>
+                </td>
+                <td><input type="number" id="rm_1rm_ohp" step="0.5" placeholder="1RM kg" style="width:90px; font-weight:700;" oninput="saveRMs()"></td>
+                <td id="preview_ohp" style="font-size:0.8rem; color:var(--text-muted);">Introduce RM para ver cargas</td>
+              </tr>
+              <tr>
+                <td><strong>Remo Barra / Máquina</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Tracción horizontal</span></td>
+                <td>
+                  <div style="display:flex; gap:4px; align-items:center;">
+                    <input type="number" id="rm_w_row" placeholder="kg" style="width:75px;" oninput="calcFromSubmax('row')">
+                    <span>×</span>
+                    <input type="number" id="rm_r_row" placeholder="reps" style="width:60px;" oninput="calcFromSubmax('row')">
+                  </div>
+                </td>
+                <td><input type="number" id="rm_1rm_row" step="0.5" placeholder="1RM kg" style="width:90px; font-weight:700;" oninput="saveRMs()"></td>
+                <td id="preview_row" style="font-size:0.8rem; color:var(--text-muted);">Introduce RM para ver cargas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="rmApplyStatus" class="alert-box badge-deload" style="margin-bottom:0;">
+          Los cálculos desde RM sólo aplican a la <strong>Semana 1</strong>. En las Semanas 2 a 8, la aplicación se guiará estrictamente por tus registros reales de la semana previa.
+        </div>
+      </div>
+
+      <!-- BENCHMARKS & DELOAD DETECTOR -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Test de Benchmarks (Sem. 1 vs. Sem. 8)</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;">
+            Avanzar una columna a la derecha en 8 semanas confirma el éxito del bloque.
+          </p>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Prueba</th>
+                  <th>Solid Dad</th>
+                  <th>Hybrid Dad</th>
+                  <th>Athlete</th>
+                  <th>Sem 1</th>
+                  <th>Sem 8</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>2.000m Remo</strong></td>
+                  <td>8:00–9:00</td><td>7:15–8:00</td><td>&lt; 7:15</td>
+                  <td><input type="text" id="bm_row_1" placeholder="7:45" oninput="saveBenchmarks()"></td>
+                  <td><input type="text" id="bm_row_8" placeholder="7:25" oninput="saveBenchmarks()"></td>
+                </tr>
+                <tr>
+                  <td><strong>5 km Carrera</strong></td>
+                  <td>27:00–32:00</td><td>23:00–27:00</td><td>&lt; 23:00</td>
+                  <td><input type="text" id="bm_run_1" placeholder="26:30" oninput="saveBenchmarks()"></td>
+                  <td><input type="text" id="bm_run_8" placeholder="24:50" oninput="saveBenchmarks()"></td>
+                </tr>
+                <tr>
+                  <td><strong>10m Bike Erg</strong></td>
+                  <td>120–160 cal</td><td>160–200 cal</td><td>200+ cal</td>
+                  <td><input type="text" id="bm_bike_1" placeholder="155" oninput="saveBenchmarks()"></td>
+                  <td><input type="text" id="bm_bike_8" placeholder="180" oninput="saveBenchmarks()"></td>
+                </tr>
+                <tr>
+                  <td><strong>Farmer's 40m</strong></td>
+                  <td>0.5× peso</td><td>0.75× peso</td><td>1× peso total</td>
+                  <td><input type="text" id="bm_fw_1" placeholder="kg tot" oninput="saveBenchmarks()"></td>
+                  <td><input type="text" id="bm_fw_8" placeholder="kg tot" oninput="saveBenchmarks()"></td>
+                </tr>
+                <tr>
+                  <td><strong>Trap Bar 5r</strong></td>
+                  <td>1× peso</td><td>1.5× peso</td><td>2× peso</td>
+                  <td><input type="text" id="bm_dl_1" placeholder="kg" oninput="saveBenchmarks()"></td>
+                  <td><input type="text" id="bm_dl_8" placeholder="kg" oninput="saveBenchmarks()"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Detector de Descarga Anticipada (Deload)</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+            La descarga programada es en la <strong>Semana 5</strong> (1 serie efectiva, Engine suave). Marca si presentas actualmente:
+          </p>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Levantamientos retroceden 2 sesiones consecutivas.</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Pulsaciones reposo (RHR) +5 ppm durante 3 mañanas.</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Peor sueño, humor corto o rechazo a entrenar.</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
+              <span>Molestias articulares que no remiten en 48 horas.</span>
+            </label>
+          </div>
+          <div id="deloadAlert" class="alert-box badge-up">
+            Estado óptimo: Menos de 2 síntomas. Continúa con la progresión prevista.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: STRUCTURE & RULES -->
     <section id="tab-structure" class="tab-content">
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
             <span class="card-title">Estructura Semanal (3, 4 o 5 Días)</span>
           </div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
-            <strong>Regla de oro:</strong> Lo innegociable es la secuencia (el patrón), no el día del calendario. Nunca hagas dos días de fuerza seguidos y acumula <strong>8.000+ pasos diarios</strong>.
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">
+            <strong>Regla innegociable:</strong> El patrón es un bucle, nunca hagas 2 días de fuerza seguidos y suma <strong>8.000+ pasos diarios</strong>.
           </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Día</th>
-                <th>Estándar (4 Días)</th>
-                <th>Turnos / Commuter</th>
-                <th>3 Días (Con recién nacido)</th>
-                <th>5 Días</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td><strong>Lunes</strong></td><td>Strength A</td><td>Strength A</td><td>Strength A (Finisher 15m)</td><td>Strength A</td></tr>
-              <tr><td><strong>Martes</strong></td><td>Engine Day</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td><td>Engine Day</td></tr>
-              <tr><td><strong>Miércoles</strong></td><td>Descanso + Pasos</td><td>Strength B</td><td>Strength B (Finisher 15m)</td><td>Strength B</td></tr>
-              <tr><td><strong>Jueves</strong></td><td>Strength B</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td></tr>
-              <tr><td><strong>Viernes</strong></td><td>Descanso + Pasos</td><td>Engine Day</td><td>Descanso + Pasos</td><td>Easy Engine (40-60m suave)</td></tr>
-              <tr><td><strong>Sábado</strong></td><td>Hybrid Session</td><td>Hybrid Session</td><td>Hybrid Session</td><td>Hybrid Session</td></tr>
-              <tr><td><strong>Domingo</strong></td><td>Descanso, familia, paseo</td><td>Descanso, familia, paseo</td><td>Descanso, familia, paseo</td><td>Descanso, familia, paseo</td></tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Día</th>
+                  <th>4 Días (Estándar)</th>
+                  <th>3 Días (Bebé/Falta tiempo)</th>
+                  <th>5 Días</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Lunes</strong></td><td>Strength A</td><td>Strength A (Finisher 15m)</td><td>Strength A</td></tr>
+                <tr><td><strong>Martes</strong></td><td>Engine Day</td><td>Descanso + Pasos</td><td>Engine Day</td></tr>
+                <tr><td><strong>Miércoles</strong></td><td>Descanso + Pasos</td><td>Strength B (Finisher 15m)</td><td>Strength B</td></tr>
+                <tr><td><strong>Jueves</strong></td><td>Strength B</td><td>Descanso + Pasos</td><td>Descanso + Pasos</td></tr>
+                <tr><td><strong>Viernes</strong></td><td>Descanso + Pasos</td><td>Descanso + Pasos</td><td>Easy Engine (40-60m)</td></tr>
+                <tr><td><strong>Sábado</strong></td><td>Hybrid Session</td><td>Hybrid Session</td><td>Hybrid Session</td></tr>
+                <tr><td><strong>Domingo</strong></td><td>Descanso en familia</td><td>Descanso en familia</td><td>Descanso en familia</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="card">
@@ -503,298 +893,119 @@
             <span class="card-title">Reglas de Progresión y Plantilla de 45 Min</span>
           </div>
           <ul class="small-list">
-            <li><strong>Doble Progresión en Fuerza:</strong> Empieza en el extremo inferior del rango de repeticiones. Cuando logres el tope del rango en <strong>ambas series de trabajo</strong> (a RIR 1–2), la siguiente sesión sube <strong>+2,5 kg en tren superior</strong> o <strong>+5 kg en tren inferior</strong> y vuelve a la base del rango. Nunca subas peso y repeticiones la misma semana.</li>
-            <li><strong>RIR (Repeticiones en Recámara):</strong> Detén cada serie efectiva cuando pudieras hacer 1 o 2 repeticiones más con buena técnica (en la sesión Híbrida del sábado, mantén RIR 2 en los bloques de fuerza).</li>
-            <li><strong>Descansos:</strong> 2–3 minutos entre series efectivas del levantamiento principal; 60–90 segundos en el resto (aprovechando las superseries).</li>
-            <li><strong>¿Vas tarde de tiempo?:</strong> Ejecuta solo los Bloques 1 y 2 (Calentamiento + Fuerza = 25 minutos). La fuerza siempre tiene prioridad cuando falta tiempo.</li>
-            <li><strong>Progresión de Dominadas (¿Aún no haces?):</strong>
-              <br>• Semanas 1–3: Jalón al pecho + 3×5 negativas lentas.
-              <br>• Semanas 4–6: Asistidas con goma (la más fina posible para 6 reps).
-              <br>• Semanas 7–8: Estrictas todas las que puedas + goma para completar.
-            </li>
-            <li><strong>Reglas de Engine (+35 años):</strong> Un día duro de Engine por semana basta junto con los finishers. Rota bici y remo con carrera para proteger gemelos y tendón de Aquiles. <strong>Nunca hagas Engine el día anterior al peso muerto.</strong></li>
+            <li><strong>Doble Progresión en Fuerza:</strong> Empieza en el tope inferior del rango. Cuando alcances el tope superior en <strong>ambas series efectivas</strong> a RIR 1–2, la siguiente semana sube <strong>+2,5 kg en torso</strong> o <strong>+5 kg en pierna</strong> y regresa a la base del rango. Nunca subas peso y repeticiones a la vez.</li>
+            <li><strong>RIR:</strong> Para cuando pudieras sacar 1 o 2 repeticiones más con técnica impecable (en la sesión híbrida de sábado, mantén RIR 2).</li>
+            <li><strong>Descansos:</strong> 2–3 minutos en el levantamiento principal; 60–90 segundos en el resto (aprovechando superseries).</li>
+            <li><strong>Falta de tiempo (25 min):</strong> Realiza únicamente Calentamiento + Fuerza (Bloques 1 y 2). La fuerza manda.</li>
+            <li><strong>Engine +35 años:</strong> Rota máquina con carrera para proteger tendones y gemelos. <strong>Nunca programes un Engine exigente el día previo al peso muerto.</strong></li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: RM CALCULATOR, BENCHMARKS & DELOAD DETECTOR -->
-    <section id="tab-benchmarks" class="tab-content">
-
-      <!-- NEW CARD: 1RM CALCULATOR & WEEK 1 AUTO-POPULATION -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <span class="card-title">Calculadora de RM de Básicos → Pesos Iniciales para la Semana 1</span>
-            <p style="font-size:0.82rem; color:var(--text-muted); margin-top:4px;">
-              Introduce tu 1RM directo o un peso y repeticiones conocidos (ej. tu 5RM o 8RM). El sistema calcula tu 1RM estimado (fórmula de Epley) y determina automáticamente los pesos de trabajo de <strong>todos los ejercicios de la Semana 1</strong> ajustados al extremo inferior del rango de repeticiones y con el margen de fatiga exigido (RIR 1–2). A partir de la Semana 2, el sistema usará lo que hayas registrado realmente en la semana previa.
-            </p>
-          </div>
-          <button onclick="applyWeek1Weights(true)">Volcar Pesos Calculados a la Semana 1</button>
-        </div>
-
-        <div style="overflow-x:auto; margin-bottom:16px;">
-          <table>
-            <thead>
-              <tr>
-                <th>Patrón Básico de Referencia</th>
-                <th>Opción A: Peso Conocido (kg) × Reps</th>
-                <th>Opción B: 1RM Directo / Calculado (kg)</th>
-                <th>Cargas Derivadas para la Semana 1 (Al inicio del rango a RIR 1–2)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>1. Sentadilla Trasera (Back Squat)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Base de tren inferior dominante de rodilla</span></td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="number" id="rm_w_sq" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('sq')">
-                    <span>×</span>
-                    <input type="number" id="rm_r_sq" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('sq')">
-                  </div>
-                </td>
-                <td>
-                  <input type="number" id="rm_1rm_sq" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
-                </td>
-                <td id="preview_sq" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
-              </tr>
-              <tr>
-                <td><strong>2. Peso Muerto (Trap Bar / Barra)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Base de bisagra de cadera y cadena posterior</span></td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="number" id="rm_w_dl" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('dl')">
-                    <span>×</span>
-                    <input type="number" id="rm_r_dl" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('dl')">
-                  </div>
-                </td>
-                <td>
-                  <input type="number" id="rm_1rm_dl" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
-                </td>
-                <td id="preview_dl" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
-              </tr>
-              <tr>
-                <td><strong>3. Empuje Horizontal (Press Banca Barra)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Si usas mancuernas, pon la suma de ambas × 1.15</span></td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="number" id="rm_w_bp" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('bp')">
-                    <span>×</span>
-                    <input type="number" id="rm_r_bp" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('bp')">
-                  </div>
-                </td>
-                <td>
-                  <input type="number" id="rm_1rm_bp" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
-                </td>
-                <td id="preview_bp" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
-              </tr>
-              <tr>
-                <td><strong>4. Empuje Vertical (Overhead Press Barra)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Base para Press Militar, Push Press y hombro</span></td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="number" id="rm_w_ohp" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('ohp')">
-                    <span>×</span>
-                    <input type="number" id="rm_r_ohp" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('ohp')">
-                  </div>
-                </td>
-                <td>
-                  <input type="number" id="rm_1rm_ohp" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
-                </td>
-                <td id="preview_ohp" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
-              </tr>
-              <tr>
-                <td><strong>5. Tracción Horizontal (Remo Barra / Pecho Apoyado)</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Peso total movido en remo con barra o máquina</span></td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="number" id="rm_w_row" placeholder="Peso kg" style="width:90px;" oninput="calcFromSubmax('row')">
-                    <span>×</span>
-                    <input type="number" id="rm_r_row" placeholder="Reps" style="width:70px;" oninput="calcFromSubmax('row')">
-                  </div>
-                </td>
-                <td>
-                  <input type="number" id="rm_1rm_row" step="0.5" placeholder="1RM (kg)" style="width:110px; font-weight:700; color:var(--accent);" oninput="saveRMs()">
-                </td>
-                <td id="preview_row" style="font-size:0.82rem; color:var(--text-muted);">Introduce tu RM para ver cargas</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div id="rmApplyStatus" class="alert-box badge-deload" style="margin-bottom:0;">
-          Al introducir tus RM aquí, la <strong>Semana 1</strong> mostrará automáticamente el peso objetivo en cada ejercicio y pre-rellenará las casillas que estén vacías. Si pulsas <em>«Volcar Pesos Calculados a la Semana 1»</em>, sobrescribirás todas las series de la Semana 1 con los cálculos exactos.
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Test de Benchmarks (Semana 1 vs. Semana 8)</span>
-          </div>
-          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">
-            Introduce tus marcas en la Semana 1 y reevalúa en la Semana 8. Pasar una columna a la derecha en 8 semanas confirma el éxito del bloque.
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Prueba</th>
-                <th>Getting Going</th>
-                <th>Solid Dad</th>
-                <th>Hybrid Dad</th>
-                <th>Athlete</th>
-                <th>Marca Sem. 1</th>
-                <th>Marca Sem. 8</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>2.000m Remo</strong></td>
-                <td>9:00+</td><td>8:00–9:00</td><td>7:15–8:00</td><td>&lt; 7:15</td>
-                <td><input type="text" id="bm_row_1" placeholder="ej. 7:45" oninput="saveBenchmarks()"></td>
-                <td><input type="text" id="bm_row_8" placeholder="ej. 7:25" oninput="saveBenchmarks()"></td>
-              </tr>
-              <tr>
-                <td><strong>5 km Carrera</strong></td>
-                <td>32:00+</td><td>27:00–32:00</td><td>23:00–27:00</td><td>&lt; 23:00</td>
-                <td><input type="text" id="bm_run_1" placeholder="ej. 26:30" oninput="saveBenchmarks()"></td>
-                <td><input type="text" id="bm_run_8" placeholder="ej. 24:50" oninput="saveBenchmarks()"></td>
-              </tr>
-              <tr>
-                <td><strong>10 min Bike Erg</strong></td>
-                <td>&lt; 120 cal</td><td>120–160 cal</td><td>160–200 cal</td><td>200+ cal</td>
-                <td><input type="text" id="bm_bike_1" placeholder="ej. 155 cal" oninput="saveBenchmarks()"></td>
-                <td><input type="text" id="bm_bike_8" placeholder="ej. 175 cal" oninput="saveBenchmarks()"></td>
-              </tr>
-              <tr>
-                <td><strong>Farmer's Walk 40m</strong></td>
-                <td>&lt; 0.5× peso corp.</td><td>0.5× peso corp.</td><td>0.75× peso corp.</td><td>1× peso corp. total</td>
-                <td><input type="text" id="bm_fw_1" placeholder="kg totales" oninput="saveBenchmarks()"></td>
-                <td><input type="text" id="bm_fw_8" placeholder="kg totales" oninput="saveBenchmarks()"></td>
-              </tr>
-              <tr>
-                <td><strong>Trap Bar DL (5 reps)</strong></td>
-                <td>&lt; peso corp.</td><td>1× peso corp.</td><td>1.5× peso corp.</td><td>2× peso corp.</td>
-                <td><input type="text" id="bm_dl_1" placeholder="kg" oninput="saveBenchmarks()"></td>
-                <td><input type="text" id="bm_dl_8" placeholder="kg" oninput="saveBenchmarks()"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">Detector de Descarga Anticipada (Deload)</span>
-          </div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:14px;">
-            La descarga oficial es en la <strong>Semana 5</strong> (mismos pesos, 1 sola serie efectiva, Engine a ritmo suave). Sin embargo, marca si presentas cualquiera de estos síntomas actuales:
-          </p>
-          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
-            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
-              <span>Los levantamientos retroceden durante dos sesiones seguidas.</span>
-            </label>
-            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
-              <span>Frecuencia cardíaca en reposo (RHR) +5 pulsaciones durante 3 mañanas seguidas.</span>
-            </label>
-            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
-              <span>Peor sueño, peor humor o rechazo mental a entrenar.</span>
-            </label>
-            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-              <input type="checkbox" class="deload-check" onchange="evaluateDeload()">
-              <span>Molestias articulares/musculares (<em>niggles</em>) que no remiten en 48 horas.</span>
-            </label>
-          </div>
-          <div id="deloadAlert" class="alert-box badge-up">
-            Estado óptimo: Menos de 2 síntomas. Continúa con la sobrecarga progresiva programada.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 4: NUTRITION & LOGISTICS -->
+    <!-- TAB 5: NUTRITION & LOGISTICS -->
     <section id="tab-nutrition" class="tab-content">
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
             <span class="card-title">Calculadora Nutricional para Padres Híbridos</span>
           </div>
-          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-            <label><strong>Tu Peso Corporal (kg):</strong></label>
-            <input type="number" id="bodyWeightInput" value="99" step="0.5" oninput="calculateNutrition()" style="width:100px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <label style="font-size:0.85rem; font-weight:700;">Peso Corporal (kg):</label>
+            <input type="number" id="bodyWeightInput" value="99" step="0.5" oninput="calculateNutrition()" style="width:90px;">
           </div>
-          <div id="nutritionResults" class="grid-3" style="margin-bottom:16px;"></div>
+          <div id="nutritionResults" class="grid-3" style="margin-bottom:14px;"></div>
           <ul class="small-list">
-            <li><strong>Regla 80/20:</strong> 22 de tus 28 comidas semanales dentro del plan. Las otras 6 son libres y planificadas (cena del viernes, asado del domingo, pinta tras el entreno híbrido).</li>
-            <li><strong>Hidratación y Electrolitos:</strong> Cada mañana 1 pinta (~500 ml) de agua con electrolitos o una pizca de sal antes del café, más 2–3 L durante el día.</li>
-            <li><strong>Suplementos:</strong> Proteína de suero (Whey), creatina 5 g diarios y electrolitos. Nada más.</li>
-            <li><strong>Alerta de Déficit Excesivo:</strong> Si caen los levantamientos, se estancan los tiempos de Engine o empeora el sueño (2 de 3), añade <strong>+200 kcal de carbohidratos</strong> alrededor del entreno.</li>
+            <li><strong>Regla 80/20:</strong> 22 de tus 28 comidas semanales en plan. Las 6 restantes son libres y planificadas (cena viernes, asado domingo, etc.).</li>
+            <li><strong>Hidratación matutina:</strong> Cada mañana 1 pinta (~500 ml) de agua con electrolitos o sal antes del café; 2–3 L totales al día.</li>
+            <li><strong>Suplementación:</strong> Proteína de suero (Whey), creatina 5 g/día y electrolitos.</li>
+            <li><strong>No pases hambre extrema:</strong> Si caen los levantamientos, se frenan los tiempos o duermes mal (2 de 3), añade <strong>+200 kcal de carbohidratos</strong> en torno al entreno.</li>
           </ul>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Estructura de Platos: Día de Entreno vs. Descanso</span>
+            <span class="card-title">Estructura de Platos: Entreno vs. Descanso</span>
           </div>
-          <table>
-            <thead>
-              <tr><th>Comida</th><th>Día de Entrenamiento</th><th>Día de Descanso</th></tr>
-            </thead>
-            <tbody>
-              <tr><td><strong>Pre-sesión</strong></td><td>Plátano o 40g avena + whey, agua + electrolitos (o en ayunas y comer justo después)</td><td>—</td></tr>
-              <tr><td><strong>Desayuno</strong></td><td>Huevos + 2 tostadas, o Yogur griego + whey + granola</td><td>Huevos + espinacas + 1 tostada, o Yogur griego + whey + frutos rojos</td></tr>
-              <tr><td><strong>Comida</strong></td><td>Palma de proteína + puño de arroz/patata + verdura</td><td>Palma de proteína + gran ensalada + medio puño de carbohidratos</td></tr>
-              <tr><td><strong>Cena</strong></td><td>Comida familiar, priorizando proteína y carbohidratos normales</td><td>Comida familiar, proteína primero, mitad de carbohidratos, doble verdura</td></tr>
-              <tr><td><strong>Snack</strong></td><td>Whey con leche o barrita proteica</td><td>Yogur griego o requesón (cottage cheese)</td></tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr><th>Momento</th><th>Día de Entrenamiento</th><th>Día de Descanso</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Pre-sesión</strong></td><td>Plátano o 40g avena + whey, electrolitos</td><td>—</td></tr>
+                <tr><td><strong>Desayuno</strong></td><td>Huevos + 2 tostadas, o Yogur griego + whey + granola</td><td>Huevos + espinacas + 1 tostada, o Yogur + whey + frutos rojos</td></tr>
+                <tr><td><strong>Comida</strong></td><td>Palma de proteína + puño arroz/patata + verdura</td><td>Palma de proteína + ensalada grande + 1/2 puño carbohidratos</td></tr>
+                <tr><td><strong>Cena</strong></td><td>Comida familiar, proteína primero, carbohidratos normales</td><td>Comida familiar, proteína primero, 1/2 carbohidratos, doble verdura</td></tr>
+                <tr><td><strong>Snack</strong></td><td>Batido de whey o barrita proteica</td><td>Yogur griego o queso cottage / requesón</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Logística 5:00 AM, Setup del Domingo y Prevención (+35 años)</span>
+            <span class="card-title">Protocolo 5:00 AM y Setup del Domingo (20 min)</span>
           </div>
           <ul class="small-list">
-            <li><strong>Protocolo 5:00 AM:</strong> Ropa, zapatillas, agua y auriculares listos la noche anterior (cero decisiones a las 5 am). En la cama a las 22:00 (la sesión se decide a las 21:30). Sesión ya escrita en notas. Agua + electrolitos y empezar. Listo y duchado a las 6:15.</li>
-            <li><strong>Palancas de Recuperación:</strong> Dormir 7 h (si duermes &lt;6 h dos noches seguidas, elimina el bloque de Engine de ese día y haz solo fuerza); 8.000+ pasos; 2 g/kg proteína; 1 día de descanso total en familia.</li>
-            <li><strong>Setup del Domingo (20 min):</strong> Anotar las 4 sesiones con los pesos de la semana anterior, agendarlas en el calendario familiar compartido, cargar auriculares, llenar botellas, preparar ropa del lunes, cocinar doble cena y dejar listos 3 desayunos.</li>
+            <li><strong>Madrugar sin fricción (5:00 AM):</strong> Ropa, zapatillas, agua y auriculares listos la noche anterior (cero decisiones al despertar). En la cama antes de las 22:00. Sesión ya anotada en el móvil. Agua + sal, y a entrenar. Listo a las 6:15.</li>
+            <li><strong>Palancas de Recuperación:</strong> 7 h de sueño (si duermes &lt;6 h dos noches seguidas, elimina el bloque de Engine y haz solo fuerza); 8.000+ pasos; 2 g/kg proteína; 1 día de descanso familiar completo.</li>
+            <li><strong>Setup del Domingo (20 min):</strong> Pasa las sesiones al calendario familiar compartido, prepara la ropa del lunes, cocina cena doble y deja listos 3 desayunos.</li>
           </ul>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Equipamiento de Garaje (Orden de Prioridad)</span>
+            <span class="card-title">Material de Garaje (Orden de Prioridad)</span>
           </div>
           <ol class="small-list">
             <li>Mancuernas ajustables (hasta 32 kg+)</li>
-            <li>Banco (plano / inclinable)</li>
+            <li>Banco plano/inclinable</li>
             <li>Barra de dominadas</li>
             <li>Kettlebell (24 kg para la mayoría)</li>
             <li>Bandas de resistencia</li>
-            <li>Comba de saltar (<em>skipping rope</em>)</li>
-            <li>Rack + barra olímpica (cuando estés seguro)</li>
-            <li>Bicicleta o remo (de segunda mano sirve)</li>
-            <li>Esterillas / suelo de goma para ti y tu hijo</li>
+            <li>Comba (skipping rope)</li>
+            <li>Rack + barra olímpica (cuando haya espacio)</li>
+            <li>Bicicleta ergométrica o remo (segunda mano)</li>
+            <li>Suelo de goma / esterillas</li>
           </ol>
-          <p style="font-size:0.8rem; color:var(--accent); margin-top:8px;">
-            *Los puntos 1 al 6 permiten ejecutar todo el programa mediante la columna de sustituciones (Swaps).
-          </p>
         </div>
       </div>
     </section>
 
-    <!-- TAB 5: 8-WEEK CHECKLIST -->
+    <!-- TAB 6: 8-WEEK CHECKLIST -->
     <section id="tab-checklist" class="tab-content">
       <div class="card">
         <div class="card-header">
-          <span class="card-title">The Hybrid Dad Checklist (Seguimiento de 8 Semanas)</span>
+          <span class="card-title">The Hybrid Dad Checklist (Seguimiento 8 Semanas)</span>
           <span class="badge badge-up">Objetivo: 12 ticks por semana</span>
         </div>
-        <div style="overflow-x:auto;">
+        <div class="table-container">
           <table class="checklist-table" id="checklistTable"></table>
         </div>
       </div>
     </section>
 
+  </div>
+
+  <!-- EXPORT SUMMARY MODAL (Formato Notes App del autor) -->
+  <div class="modal-overlay" id="exportModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size:1.1rem; font-weight:800;">Resumen Semanal de Notas (Export)</h3>
+        <button class="secondary" onclick="closeExportModal()" style="padding:4px 8px;">✕ Cerrar</button>
+      </div>
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px;">
+        Este texto sigue exactamente el formato condensado del manual (Pág. 3). Cópialo y pégalo en tu bloc de notas o envíatelo por mensajería.
+      </p>
+      <textarea class="export-box" id="exportText" readonly></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="primary-btn" onclick="copyExportText()">📋 Copiar al Portapapeles</button>
+        <button class="secondary" onclick="closeExportModal()">Listo</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -805,9 +1016,9 @@
         restInfo: "Descanso: 2-3 min en Sentadilla | 60-90 s en superseries (RIR 1-2)",
         exercises: [
           { id: "sq", name: "1. Barbell Back Squat", type: "lower", isMain: true, warmupSets: 2, workSets: 2, minReps: 6, maxReps: 8, rir: "1-2", swap: "Goblet squat o DB front squat x 10" },
-          { id: "db_bp", name: "2A. Dumbbell Bench Press (Superserie con 2B)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 10, rir: "1-2", unitNote: "reps (kg por mancuerna)", swap: "Press-ups con pies elevados" },
-          { id: "cs_row", name: "2B. Chest-Supported Row (Superserie con 2A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 10, maxReps: 12, rir: "1-2", swap: "Single-arm dumbbell row x 10/lado" },
-          { id: "split_sq", name: "3A. Dumbbell Split Squat (Superserie con 3B)", type: "lower", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 8, rir: "1-2", unitNote: "reps/pierna (kg por mancuerna)", swap: "Reverse lunge" },
+          { id: "db_bp", name: "2A. Dumbbell Bench Press (Superserie con 2B)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 10, rir: "1-2", unitNote: "reps (kg/manc)", swap: "Press-ups con pies elevados" },
+          { id: "cs_row", name: "2B. Chest-Supported Row (Superserie con 2A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 10, maxReps: 12, rir: "1-2", swap: "Single-arm DB row x 10/lado" },
+          { id: "split_sq", name: "3A. Dumbbell Split Squat (Superserie con 3B)", type: "lower", isMain: false, warmupSets: 1, workSets: 2, minReps: 8, maxReps: 8, rir: "1-2", unitNote: "reps/pierna (kg/manc)", swap: "Reverse lunge" },
           { id: "face_pull", name: "3B. Face Pulls (Superserie con 3A)", type: "upper", isMain: false, warmupSets: 1, workSets: 2, minReps: 15, maxReps: 15, rir: "1-2", swap: "Band pull-aparts x 20" }
         ],
         finisher: "Engine Finisher (10-15 min): Bike o Rower, 40 s fuerte / 20 s suave × 12 rondas. ¿Sin máquina?: Kettlebell swings 15 + burpees 5, EMOM 12 min. (Anota calorías o rondas)."
@@ -826,25 +1037,25 @@
       },
       hybridGym: {
         title: "Sábado: The Hybrid Session (Versión Gimnasio — 45 Min)",
-        restInfo: "Superseries a RIR 2 (guardando energía para el bloque de acondicionamiento), 90 s descanso",
+        restInfo: "Superseries a RIR 2 (guardando energía para conditioning), 90 s descanso",
         exercises: [
-          { id: "hy_fsq", name: "Superserie 1A (Min 5-15): Front Squat o Goblet Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 8, rir: "2", swap: "Goblet Squat pesado" },
-          { id: "hy_pull", name: "Superserie 1B (Min 5-15): Pull-ups", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 10, rir: "2", swap: "Band-assisted pull-ups" },
-          { id: "hy_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "Push press con barra" },
-          { id: "hy_rdl", name: "Superserie 2B (Min 15-25): Romanian Deadlift", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "DB RDL" }
+          { id: "hy_fsq", name: "Superserie 1A: Front Squat o Goblet Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 8, rir: "2", swap: "Goblet Squat pesado" },
+          { id: "hy_pull", name: "Superserie 1B: Pull-ups", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 6, maxReps: 10, rir: "2", swap: "Band-assisted pull-ups" },
+          { id: "hy_pp", name: "Superserie 2A: Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg/manc)", swap: "Push press barra" },
+          { id: "hy_rdl", name: "Superserie 2B: Romanian Deadlift", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", swap: "DB RDL" }
         ],
-        finisher: "Bloque Conditioning (Min 25-40): 3 rondas por tiempo (2 min descanso entre rondas): 500m row + 10 KB swings pesados + 10 burpees over the bar + 200m run (o 20 cal bike). Escala difícil Sem 6-8: 4 rondas, 90s descanso, KB más pesada."
+        finisher: "Bloque Conditioning (Min 25-40): 3 rondas por tiempo (2 min descanso): 500m row + 10 KB swings pesados + 10 burpees over the bar + 200m run (o 20 cal bike). Escala difícil Sem 6-8: 4 rondas, 90s descanso, KB más pesada."
       },
       hybridGarage: {
         title: "Sábado: The Hybrid Session (Versión Garaje / Sin Máquinas — 45 Min)",
         restInfo: "Superseries a RIR 2, 90 s descanso. Ideal para entrenar con los niños cerca.",
         exercises: [
-          { id: "hg_fsq", name: "Superserie 1A (Min 5-15): Dumbbell Front Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "Goblet Squat" },
-          { id: "hg_row", name: "Superserie 1B (Min 5-15): Single-Arm Dumbbell Row", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps/brazo (kg mancuerna)", swap: "Remo con banda" },
-          { id: "hg_pp", name: "Superserie 2A (Min 15-25): Dumbbell Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "Press militar mancuernas" },
-          { id: "hg_rdl", name: "Superserie 2B (Min 15-25): Dumbbell RDL", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps (kg por mancuerna)", swap: "KB Deadlift" }
+          { id: "hg_fsq", name: "Superserie 1A: DB Front Squat", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg/manc)", swap: "Goblet Squat" },
+          { id: "hg_row", name: "Superserie 1B: Single-Arm DB Row", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps/brazo (kg/manc)", swap: "Remo goma" },
+          { id: "hg_pp", name: "Superserie 2A: DB Push Press", type: "upper", isMain: false, warmupSets: 1, workSets: 3, minReps: 8, maxReps: 8, rir: "2", unitNote: "reps (kg/manc)", swap: "Press militar manc." },
+          { id: "hg_rdl", name: "Superserie 2B: Dumbbell RDL", type: "lower", isMain: false, warmupSets: 1, workSets: 3, minReps: 10, maxReps: 10, rir: "2", unitNote: "reps (kg/manc)", swap: "KB Deadlift" }
         ],
-        finisher: "Bloque Conditioning (Min 25-40): Complejo con mancuernas (5 rondas, sin soltar las mancuernas): 6 deadlifts + 6 hang cleans + 6 front squats + 6 push presses + 6 bent-over rows + 200m carrera o 60s comba. Descanso 90 s."
+        finisher: "Bloque Conditioning (Min 25-40): Complejo mancuernas (5 rondas, sin soltarlas): 6 peso muerto + 6 hang cleans + 6 sentadillas frontales + 6 push presses + 6 remos + 200m carrera o 60s comba. Descanso 90s."
       }
     };
 
@@ -853,7 +1064,7 @@
         id: "menu1",
         name: "Menú 1: Rower Ladders (Escalera de Remo)",
         warmup: "5 min suave, 3 × 10 paladas fuertes",
-        baseWork: "250m – 500m – 750m – 500m – 250m (Fuerte). Descanso = tiempo que tardaste en el tramo anterior.",
+        baseWork: "250m – 500m – 750m – 500m – 250m (Fuerte). Descanso = tiempo del tramo anterior.",
         cooldown: "4 min suave",
         scoreLabel: "Tiempo total de trabajo en la escalera (min:seg)",
         progressionRule: (w) => w >= 5 ? "PROGRESIÓN SEM 5+: Añade un segundo bloque de 750m (250-500-750-750-500-250m)." : "Semanas 1-4: Escalera estándar (vence tu tiempo anterior)."
@@ -876,9 +1087,9 @@
         id: "menu3",
         name: "Menú 3: Runner Tempo Blocks",
         warmup: "5 min caminar-trotar, 4 × 20 s progresivos (strides)",
-        baseWork: "3 min tempo (fuerte pero constante) / 2 min caminando × 5 bloques (Cinta curva, normal o calle).",
+        baseWork: "3 min tempo / 2 min caminando × 5 bloques (Cinta curva o calle).",
         cooldown: "5 min caminando",
-        scoreLabel: "Distancia total cubierta en los minutos de tempo (metros/km)",
+        scoreLabel: "Distancia total cubierta en los minutos tempo (m/km)",
         progressionRule: (w) => {
           if (w >= 7) return "PROGRESIÓN SEM 7-8: 6 bloques de 4 min tempo / 2 min caminando.";
           if (w >= 5) return "PROGRESIÓN SEM 5-6: 5 bloques de 4 min tempo / 2 min caminando.";
@@ -890,12 +1101,12 @@
         id: "menu4",
         name: "Menú 4: Metcon Circuit (Sin Máquinas)",
         warmup: "5 min: swings ligeros, sentadillas, flexiones",
-        baseWork: "5 rondas (90 s descanso): 15 KB swings + 12 goblet squats + 12 press-ups + 10 DB rows/brazo + 200m carrera (o 30 mountain climbers).",
+        baseWork: "5 rondas (90 s descanso): 15 KB swings + 12 goblet squats + 12 flexiones + 10 DB rows/brazo + 200m carrera (o 30 escaladores).",
         cooldown: "5 min caminando",
-        scoreLabel: "Tiempo total para completar las rondas (min:seg)",
+        scoreLabel: "Tiempo total para 5 rondas (min:seg)",
         progressionRule: (w) => {
-          if (w >= 7) return "PROGRESIÓN SEM 7-8: 6 rondas completas con pesa rusa más pesada.";
-          if (w >= 5) return "PROGRESIÓN SEM 5-6: 5 rondas subiendo el peso de la Kettlebell/mancuerna.";
+          if (w >= 7) return "PROGRESIÓN SEM 7-8: 6 rondas completas con campana más pesada.";
+          if (w >= 5) return "PROGRESIÓN SEM 5-6: 5 rondas subiendo el peso de la Kettlebell.";
           return "Semanas 1-4: 5 rondas estándar buscando mejorar el tiempo total.";
         }
       }
@@ -940,6 +1151,10 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
+
+      if (tabId === 'tab-charts') {
+        renderCharts();
+      }
     }
 
     // --- 1RM & WEEK 1 STARTING WEIGHT CALCULATOR ---
@@ -948,7 +1163,6 @@
       return Math.round(val / step) * step;
     }
 
-    // Epley inverse: Weight for (targetReps + RIR) from 1RM
     function loadForRepsAndRIR(oneRM, reps, rir = 2, ratio = 1.0, step = 2.5) {
       const rm = parseFloat(oneRM);
       if (!rm || rm <= 0) return 0;
@@ -966,28 +1180,24 @@
       const row = parseFloat(rms.row) || 0;
 
       switch (exId) {
-        // Strength A
-        case "sq":       return loadForRepsAndRIR(sq, 6, 2, 1.0, 2.5);     // Back Squat: 6 reps @ RIR 2 (~79% 1RM)
-        case "db_bp":    return loadForRepsAndRIR(bp, 8, 2, 0.42, 2.0);    // DB Bench (por mancuerna): 8 reps @ RIR 2 (~31.5% 1RM barra/mano)
-        case "cs_row":   return loadForRepsAndRIR(row, 10, 2, 1.0, 2.5);   // CS Row: 10 reps @ RIR 2 (~71% 1RM)
-        case "split_sq": return loadForRepsAndRIR(sq, 8, 2, 0.28, 2.0);    // DB Split Squat (por mancuerna): 8 reps/pierna @ RIR 2
-        case "face_pull":return loadForRepsAndRIR(ohp, 15, 2, 0.45, 2.5);  // Face Pulls: 15 reps @ RIR 2
-        // Strength B
-        case "dl":         return loadForRepsAndRIR(dl, 5, 2, 1.0, 2.5);   // Trap Bar/BB Deadlift: 5 reps @ RIR 2 (~81% 1RM)
-        case "ohp":        return loadForRepsAndRIR(ohp, 6, 2, 1.0, 2.5);  // Standing OHP: 6 reps @ RIR 2 (~79% 1RM)
-        case "pullup":     return loadForRepsAndRIR(row, 6, 2, 0.95, 2.5); // Lat Pulldown / Pull-up ref
-        case "hip_thrust": return loadForRepsAndRIR(dl, 8, 2, 0.95, 2.5);  // Barbell Hip Thrust: 8 reps @ RIR 2
-        case "knee_raise": return 0;                                       // Peso corporal
-        // Hybrid Gym
-        case "hy_fsq":  return loadForRepsAndRIR(sq, 6, 2, 0.82, 2.5);     // Front Squat (~82% del Back Squat) a 6 reps @ RIR 2
-        case "hy_pull": return 0;                                          // Dominadas peso corporal
-        case "hy_pp":   return loadForRepsAndRIR(ohp, 8, 2, 0.48, 2.0);    // DB Push Press (por mancuerna) a 8 reps @ RIR 2
-        case "hy_rdl":  return loadForRepsAndRIR(dl, 8, 2, 0.75, 2.5);     // RDL con barra (~75% del DL) a 8 reps @ RIR 2
-        // Hybrid Garage
-        case "hg_fsq":  return loadForRepsAndRIR(sq, 8, 2, 0.32, 2.0);     // DB Front Squat (por mancuerna) a 8 reps @ RIR 2
-        case "hg_row":  return loadForRepsAndRIR(row, 10, 2, 0.46, 2.0);   // Single-Arm DB Row (por mancuerna) a 10 reps @ RIR 2
-        case "hg_pp":   return loadForRepsAndRIR(ohp, 8, 2, 0.48, 2.0);    // DB Push Press (por mancuerna) a 8 reps @ RIR 2
-        case "hg_rdl":  return loadForRepsAndRIR(dl, 10, 2, 0.34, 2.0);    // DB RDL (por mancuerna) a 10 reps @ RIR 2
+        case "sq":       return loadForRepsAndRIR(sq, 6, 2, 1.0, 2.5);
+        case "db_bp":    return loadForRepsAndRIR(bp, 8, 2, 0.42, 2.0);
+        case "cs_row":   return loadForRepsAndRIR(row, 10, 2, 1.0, 2.5);
+        case "split_sq": return loadForRepsAndRIR(sq, 8, 2, 0.28, 2.0);
+        case "face_pull":return loadForRepsAndRIR(ohp, 15, 2, 0.45, 2.5);
+        case "dl":         return loadForRepsAndRIR(dl, 5, 2, 1.0, 2.5);
+        case "ohp":        return loadForRepsAndRIR(ohp, 6, 2, 1.0, 2.5);
+        case "pullup":     return loadForRepsAndRIR(row, 6, 2, 0.95, 2.5);
+        case "hip_thrust": return loadForRepsAndRIR(dl, 8, 2, 0.95, 2.5);
+        case "knee_raise": return 0;
+        case "hy_fsq":  return loadForRepsAndRIR(sq, 6, 2, 0.82, 2.5);
+        case "hy_pull": return 0;
+        case "hy_pp":   return loadForRepsAndRIR(ohp, 8, 2, 0.48, 2.0);
+        case "hy_rdl":  return loadForRepsAndRIR(dl, 8, 2, 0.75, 2.5);
+        case "hg_fsq":  return loadForRepsAndRIR(sq, 8, 2, 0.32, 2.0);
+        case "hg_row":  return loadForRepsAndRIR(row, 10, 2, 0.46, 2.0);
+        case "hg_pp":   return loadForRepsAndRIR(ohp, 8, 2, 0.48, 2.0);
+        case "hg_rdl":  return loadForRepsAndRIR(dl, 10, 2, 0.34, 2.0);
         default: return 0;
       }
     }
@@ -1013,7 +1223,7 @@
       });
       saveData();
       updateRMPreviews();
-      applyWeek1Weights(false); // Rellena automáticamente solo las casillas de Semana 1 que estén vacías
+      applyWeek1Weights(false);
       renderWorkout();
     }
 
@@ -1030,31 +1240,30 @@
     function updateRMPreviews() {
       const sqW = getSuggestedWeek1Weight("sq");
       document.getElementById("preview_sq").innerHTML = sqW > 0
-        ? `<strong>Back Squat (6r):</strong> ${sqW} kg | <strong>Front Sq (6r):</strong> ${getSuggestedWeek1Weight("hy_fsq")} kg | <strong>Split Sq (8r):</strong> ${getSuggestedWeek1Weight("split_sq")} kg/manc.`
-        : "Introduce tu RM para ver cargas";
+        ? `<strong>Back Squat:</strong> ${sqW} kg | <strong>Front:</strong> ${getSuggestedWeek1Weight("hy_fsq")} kg | <strong>Split:</strong> ${getSuggestedWeek1Weight("split_sq")} kg/manc.`
+        : "Introduce RM para ver cargas";
 
       const dlW = getSuggestedWeek1Weight("dl");
       document.getElementById("preview_dl").innerHTML = dlW > 0
-        ? `<strong>Deadlift (5r):</strong> ${dlW} kg | <strong>Hip Thrust (8r):</strong> ${getSuggestedWeek1Weight("hip_thrust")} kg | <strong>RDL (8r):</strong> ${getSuggestedWeek1Weight("hy_rdl")} kg`
-        : "Introduce tu RM para ver cargas";
+        ? `<strong>Deadlift:</strong> ${dlW} kg | <strong>Hip Thrust:</strong> ${getSuggestedWeek1Weight("hip_thrust")} kg | <strong>RDL:</strong> ${getSuggestedWeek1Weight("hy_rdl")} kg`
+        : "Introduce RM para ver cargas";
 
       const bpW = getSuggestedWeek1Weight("db_bp");
       document.getElementById("preview_bp").innerHTML = bpW > 0
-        ? `<strong>DB Bench Press (8r):</strong> ${bpW} kg por mancuerna`
-        : "Introduce tu RM para ver cargas";
+        ? `<strong>DB Bench:</strong> ${bpW} kg/mancuerna`
+        : "Introduce RM para ver cargas";
 
       const ohpW = getSuggestedWeek1Weight("ohp");
       document.getElementById("preview_ohp").innerHTML = ohpW > 0
-        ? `<strong>Overhead Press (6r):</strong> ${ohpW} kg | <strong>DB Push Press (8r):</strong> ${getSuggestedWeek1Weight("hy_pp")} kg/manc.`
-        : "Introduce tu RM para ver cargas";
+        ? `<strong>OHP:</strong> ${ohpW} kg | <strong>Push Press:</strong> ${getSuggestedWeek1Weight("hy_pp")} kg/manc.`
+        : "Introduce RM para ver cargas";
 
       const rowW = getSuggestedWeek1Weight("cs_row");
       document.getElementById("preview_row").innerHTML = rowW > 0
-        ? `<strong>CS Row (10r):</strong> ${rowW} kg | <strong>DB Row (10r):</strong> ${getSuggestedWeek1Weight("hg_row")} kg/manc.`
-        : "Introduce tu RM para ver cargas";
+        ? `<strong>CS Row:</strong> ${rowW} kg | <strong>DB Row:</strong> ${getSuggestedWeek1Weight("hg_row")} kg/manc.`
+        : "Introduce RM para ver cargas";
     }
 
-    // Volcar los pesos calculados a la Semana 1
     function applyWeek1Weights(overwriteAll = false) {
       Object.keys(SESSIONS).forEach(sessionKey => {
         const session = SESSIONS[sessionKey];
@@ -1083,7 +1292,7 @@
       if (overwriteAll) {
         const statusEl = document.getElementById("rmApplyStatus");
         statusEl.className = "alert-box badge-up";
-        statusEl.innerHTML = `<strong>¡Pesos volcados con éxito!</strong> Se han actualizado las cargas iniciales y repeticiones objetivo de la <strong>Semana 1</strong> en todas las sesiones. A partir de la Semana 2 el seguimiento dependerá de tus registros reales.`;
+        statusEl.innerHTML = `<strong>¡Pesos volcados!</strong> Se han fijado las cargas y repeticiones iniciales de la <strong>Semana 1</strong> en todas las sesiones.`;
       }
     }
 
@@ -1095,12 +1304,12 @@
         if (sug > 0) {
           return {
             badgeClass: "badge-up",
-            text: `Semana 1 (Calculado por RM): Usa ${sug} kg para ${ex.minReps} reps a RIR ${ex.rir}.`
+            text: `Semana 1 (Calculado): ${sug} kg × ${ex.minReps} reps a RIR ${ex.rir}.`
           };
         }
         return {
           badgeClass: "badge-deload",
-          text: `Semana 1: Introduce tus RM en la Pestaña 3 o busca un peso para ${ex.minReps}${ex.maxReps !== ex.minReps ? '-' + ex.maxReps : ''} reps a RIR ${ex.rir}.`
+          text: `Semana 1: Busca carga para ${ex.minReps}${ex.maxReps !== ex.minReps ? '-' + ex.maxReps : ''} reps a RIR ${ex.rir}.`
         };
       }
 
@@ -1108,7 +1317,7 @@
       const prevData = appData.workouts[prevKey];
 
       if (!prevData || !prevData.sets || prevData.sets.length === 0 || !prevData.sets[0].weight) {
-        return { badgeClass: "badge-hold", text: `Sin registro en Semana ${w - 1}. Introduce tu carga objetivo (${ex.minReps}-${ex.maxReps} reps).` };
+        return { badgeClass: "badge-hold", text: `Sin registro en Sem ${w - 1}. Carga objetivo: ${ex.minReps}-${ex.maxReps} reps.` };
       }
 
       const lastWeight = parseFloat(prevData.sets[0].weight) || 0;
@@ -1116,11 +1325,10 @@
       if (w === 5) {
         return {
           badgeClass: "badge-deload",
-          text: `SEMANA 5 (DESCARGA): Mantén ${lastWeight} kg, realiza SOLO 1 serie efectiva y deja margen.`
+          text: `SEM 5 (DESCARGA): Mantén ${lastWeight} kg, haz 1 serie efectiva a ritmo suave.`
         };
       }
 
-      // Check if all working sets in previous week hit maxReps
       const requiredSets = (w - 1 === 5) ? 1 : ex.workSets;
       let hitTopOnAll = true;
       let repsSummary = [];
@@ -1138,24 +1346,24 @@
         const nextWeight = lastWeight + increment;
         return {
           badgeClass: "badge-up",
-          text: `¡SUBIR PESO! Lograste ${repsSummary.join('/')} reps con ${lastWeight} kg. Sube +${increment} kg → ${nextWeight} kg y apunta a ${ex.minReps} reps.`
+          text: `¡SUBIR PESO! Lograste ${repsSummary.join('/')} reps con ${lastWeight}kg. Sube +${increment}kg → ${nextWeight}kg y haz ${ex.minReps} reps.`
         };
       } else {
         return {
           badgeClass: "badge-hold",
-          text: `MANTENER ${lastWeight} kg (Sem. anterior: ${repsSummary.join('/')} reps). Objetivo hoy: sumar repeticiones hasta alcanzar ${ex.maxReps} en todas las series.`
+          text: `MANTENER ${lastWeight}kg (${repsSummary.join('/')} reps). Suma reps hoy hasta lograr ${ex.maxReps} en todas las series.`
         };
       }
     }
 
     function calcWarmupText(ex, currentWeight) {
       const w = parseFloat(currentWeight);
-      if (!w || w <= 0) return "Introduce el peso de la Serie 1 (o tus RM en la Pestaña 3) para calcular las series de calentamiento automáticamente.";
+      if (!w || w <= 0) return "Introduce el peso de la Serie 1 para calcular aproximaciones automáticamente.";
       const round25 = (val) => Math.round(val / 2.5) * 2.5;
       if (ex.isMain) {
-        return `Calentamiento Principal (2 series): Serie Aprox. 1: <strong>${round25(w * 0.5)} kg × 8 reps</strong> (~50%) | Serie Aprox. 2: <strong>${round25(w * 0.75)} kg × 4 reps</strong> (~75%).`;
+        return `Calentamiento: Aprox 1: <strong>${round25(w * 0.5)} kg × 8</strong> (~50%) | Aprox 2: <strong>${round25(w * 0.75)} kg × 4</strong> (~75%).`;
       } else {
-        return `Calentamiento Secundario (1 serie): Serie Aprox. 1: <strong>${round25(w * 0.7)} kg × 6 reps</strong> (~70%).`;
+        return `Calentamiento: Aprox 1: <strong>${round25(w * 0.7)} kg × 6</strong> (~70%).`;
       }
     }
 
@@ -1166,28 +1374,25 @@
       const container = document.getElementById("workoutContainer");
       const banner = document.getElementById("weekBanner");
 
-      // Update Banner
       const bannerMessages = {
-        1: "SEMANA 1: Pesos iniciales calculados automáticamente desde tus RM (Pestaña 3) al inicio del rango de repeticiones (RIR 1-2). Ajusta si es necesario y anota tus Benchmarks.",
-        2: "SEMANA 2: Progresa cada levantamiento en repeticiones o peso según lo registrado realmente en la Semana 1.",
-        3: "SEMANA 3: Sube repeticiones/peso en fuerza y añade +1 intervalo en Engine.",
-        4: "SEMANA 4: Última semana del primer bloque de carga antes de la descarga. Supera el libro de notas.",
-        5: "SEMANA 5 (DESCARGA OBLIGATORIA): Usa los mismos pesos de la Semana 4, haz SOLO 1 serie de trabajo por ejercicio y ejecuta el Engine a ritmo suave conversacional.",
-        6: "SEMANA 6 (PUSH): Retoma todas las series de trabajo, levantamientos más pesados y mayor intensidad en acondicionamiento.",
-        7: "SEMANA 7 (PUSH MÁXIMO): Cargas pico y aumento de volumen/duración en los bloques de Engine.",
-        8: "SEMANA 8 (RE-TEST): Último empuje de cargas y reevaluación de los 5 Benchmarks para comprobar tu salto de nivel."
+        1: "SEMANA 1: Pesos iniciales calculados automáticamente desde tus RM (Pestaña 3) al inicio del rango de reps (RIR 1-2). Anota benchmarks.",
+        2: "SEMANA 2: Progresa cada levantamiento en reps o peso según lo registrado en la Semana 1.",
+        3: "SEMANA 3: Sube reps/peso en fuerza y añade +1 intervalo en Engine.",
+        4: "SEMANA 4: Última semana del bloque de carga antes de la descarga. Supera el libro.",
+        5: "SEMANA 5 (DESCARGA OBLIGATORIA): Mismos pesos de Semana 4, SOLO 1 serie efectiva y Engine conversacional suave.",
+        6: "SEMANA 6 (PUSH): Cargas pico retomando todas las series de trabajo e intensidad alta.",
+        7: "SEMANA 7 (PUSH MÁXIMO): Cargas máximas y aumento de intervalos en bloques de Engine.",
+        8: "SEMANA 8 (RE-TEST): Último empuje de cargas y reevaluación de los 5 Benchmarks de la Pestaña 3."
       };
       banner.className = week === 5 ? "alert-box badge-deload" : "alert-box badge-hold";
-      banner.innerHTML = `<strong>Foco del Bloque — </strong> ${bannerMessages[week]}`;
+      banner.innerHTML = `<strong>Foco de la Semana:</strong> ${bannerMessages[week]}`;
 
-      // Load Core Notes
       const coreKey = `w${week}_${sessionKey}_core`;
       document.getElementById("coreNotesInput").value = appData.workouts[coreKey] || "";
 
-      // If Engine Day
       if (sessionKey === "engine") {
         document.getElementById("coreCard").style.display = "none";
-        let html = `<div class="card"><div class="card-header"><span class="card-title">Engine Day (30–40 Minutos) — Elige 1 Menú</span><span class="badge badge-up">Fuerte = No puedes hablar</span></div>`;
+        let html = `<div class="card"><div class="card-header"><span class="card-title">Engine Day (30–40 Min) — Elige 1 Menú</span><span class="badge badge-up">Fuerte = Sin hablar</span></div>`;
         ENGINE_MENUS.forEach(menu => {
           const storageKey = `w${week}_engine_${menu.id}`;
           const savedScore = appData.workouts[storageKey] || "";
@@ -1197,15 +1402,15 @@
               <div class="exercise-top">
                 <div>
                   <div class="exercise-name">${menu.name}</div>
-                  <div class="exercise-meta"><strong>Calentamiento:</strong> ${menu.warmup} | <strong>Enfriamiento:</strong> ${menu.cooldown}</div>
+                  <div class="exercise-meta">${menu.warmup} | Enfriamiento: ${menu.cooldown}</div>
                 </div>
                 <span class="badge badge-deload">${menu.progressionRule(week)}</span>
               </div>
-              <p style="font-size:0.9rem; margin-bottom:10px;"><strong>Trabajo Principal:</strong> ${menu.baseWork}</p>
+              <p style="font-size:0.85rem; margin-bottom:10px;"><strong>Trabajo:</strong> ${menu.baseWork}</p>
               <div class="sets-grid">
                 <div class="set-box">
                   <label>${menu.scoreLabel} (Sem. anterior: ${prevScore})</label>
-                  <input type="text" value="${savedScore}" placeholder="Anota tu marca de hoy..." oninput="saveEngineScore('${storageKey}', this.value)">
+                  <input type="text" value="${savedScore}" placeholder="Tu resultado..." oninput="saveEngineScore('${storageKey}', this.value)">
                 </div>
               </div>
             </div>
@@ -1216,13 +1421,12 @@
         return;
       }
 
-      // Strength / Hybrid Sessions
       document.getElementById("coreCard").style.display = "block";
       const session = SESSIONS[sessionKey];
       let html = `
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Bloque 2: ${session.title} (Minutos 5:00 – 25:00)</span>
+            <span class="card-title">Bloque 2: ${session.title} (5:00 – 25:00)</span>
             <span class="badge badge-hold">${session.restInfo}</span>
           </div>
       `;
@@ -1243,8 +1447,8 @@
               <div>
                 <div class="exercise-name">${ex.name}</div>
                 <div class="exercise-meta">
-                  Series: ${ex.warmupSets} aprox. + <strong>${effectiveWorkSets} efectivas</strong> |
-                  Rango objetivo: <strong>${ex.minReps}${ex.maxReps !== ex.minReps ? '–' + ex.maxReps : ''} ${ex.unitNote || 'reps'}</strong> (RIR ${ex.rir}) |
+                  ${ex.warmupSets} aprox. + <strong>${effectiveWorkSets} efectivas</strong> |
+                  Objetivo: <strong>${ex.minReps}${ex.maxReps !== ex.minReps ? '–' + ex.maxReps : ''} ${ex.unitNote || 'reps'}</strong> (RIR ${ex.rir}) |
                   <em>Swap: ${ex.swap}</em>
                 </div>
               </div>
@@ -1261,13 +1465,13 @@
           const dispWeight = (setObj.weight !== "" && setObj.weight !== undefined) ? setObj.weight : (week === 1 && sugW1 > 0 ? sugW1 : "");
           html += `
             <div class="set-box">
-              <label>Serie Efectiva ${s + 1}</label>
+              <label>Serie ${s + 1}</label>
               <div class="set-inputs">
-                <input type="number" step="0.5" placeholder="Peso (kg)" value="${dispWeight}"
+                <input type="number" step="0.5" placeholder="kg" value="${dispWeight}"
                   oninput="saveSet('${storageKey}', ${s}, 'weight', this.value, '${ex.id}', '${sessionKey}')">
-                <input type="number" placeholder="Reps (${ex.minReps}-${ex.maxReps})" value="${setObj.reps}"
+                <input type="number" placeholder="reps" value="${setObj.reps}"
                   oninput="saveSet('${storageKey}', ${s}, 'reps', this.value, '${ex.id}', '${sessionKey}')">
-                <input type="number" placeholder="RIR" value="${setObj.rir}" style="max-width:70px;"
+                <input type="number" placeholder="RIR" value="${setObj.rir}" style="max-width:55px;"
                   oninput="saveSet('${storageKey}', ${s}, 'rir', this.value, '${ex.id}', '${sessionKey}')">
               </div>
             </div>
@@ -1277,7 +1481,6 @@
         html += `</div></div>`;
       });
 
-      // Finisher / Conditioning Block (Min 25:00 - 40:00)
       const finKey = `w${week}_${sessionKey}_finisher`;
       const savedFin = appData.workouts[finKey] || "";
       const prevFin = appData.workouts[`w${week - 1}_${sessionKey}_finisher`] || "Sin registro";
@@ -1286,14 +1489,14 @@
         </div>
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Bloque 3: Engine / Conditioning Block (Minutos 25:00 – 40:00)</span>
-            <span class="badge badge-up">${week === 5 ? 'Semana 5: Ritmo suave' : 'Alta Intensidad'}</span>
+            <span class="card-title">Bloque 3: Engine / Finisher (25:00 – 40:00)</span>
+            <span class="badge badge-up">${week === 5 ? 'Sem 5: Ritmo suave' : 'Alta Intensidad'}</span>
           </div>
-          <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">${session.finisher}</p>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">${session.finisher}</p>
           <div class="sets-grid">
             <div class="set-box">
-              <label>Puntuación / Calorías / Tiempo (Semana anterior: ${prevFin})</label>
-              <input type="text" value="${savedFin}" placeholder="Ej: 168 cal en Bike / 11:40 tiempo total" oninput="saveEngineScore('${finKey}', this.value)">
+              <label>Resultado / Calorías / Tiempo (Sem anterior: ${prevFin})</label>
+              <input type="text" value="${savedFin}" placeholder="Ej: 168 cal Bike / 11:40 total" oninput="saveEngineScore('${finKey}', this.value)">
             </div>
           </div>
         </div>
@@ -1368,20 +1571,20 @@
 
       const phaseEl = document.getElementById("timerPhase");
       if (mins < 5) {
-        phaseEl.textContent = "0-5m: Bloque 1 — Calentamiento";
-        phaseEl.style.color = "#60a5fa";
+        phaseEl.textContent = "0-5m: Calentamiento";
+        phaseEl.style.color = "var(--primary)";
       } else if (mins < 25) {
-        phaseEl.textContent = "5-25m: Bloque 2 — Fuerza Principal";
-        phaseEl.style.color = "#fbbf24";
+        phaseEl.textContent = "5-25m: Fuerza Principal";
+        phaseEl.style.color = "var(--accent)";
       } else if (mins < 40) {
-        phaseEl.textContent = "25-40m: Bloque 3 — Engine Block";
-        phaseEl.style.color = "#f87171";
+        phaseEl.textContent = "25-40m: Engine Block";
+        phaseEl.style.color = "var(--danger)";
       } else if (mins < 45) {
-        phaseEl.textContent = "40-45m: Bloque 4 — Core + Carries";
-        phaseEl.style.color = "#34d399";
+        phaseEl.textContent = "40-45m: Core + Carries";
+        phaseEl.style.color = "var(--success)";
       } else {
-        phaseEl.textContent = "¡45m Completados! Sesión terminada";
-        phaseEl.style.color = "#10b981";
+        phaseEl.textContent = "¡45m Fin!";
+        phaseEl.style.color = "var(--success)";
       }
     }
 
@@ -1406,10 +1609,10 @@
       const alertBox = document.getElementById("deloadAlert");
       if (count >= 2) {
         alertBox.className = "alert-box badge-danger";
-        alertBox.innerHTML = `<strong>¡ALERTA DE DESCARGA INMEDIATA! (${count}/4 síntomas):</strong> La regla del programa indica que con 2 o más signos debes aplicar descarga hoy mismo (mismo peso, 1 serie efectiva, Engine suave). Forzar te costará dos semanas.`;
+        alertBox.innerHTML = `<strong>¡ALERTA DE DESCARGA INMEDIATA! (${count}/4 síntomas):</strong> Aplica descarga hoy mismo (mismo peso, 1 serie efectiva, Engine suave).`;
       } else {
         alertBox.className = "alert-box badge-up";
-        alertBox.innerHTML = `<strong>Estado óptimo (${count}/4 síntomas):</strong> No requieres adelantar la descarga. Mantén el plan previsto.`;
+        alertBox.innerHTML = `<strong>Estado óptimo (${count}/4 síntomas):</strong> No requieres adelantar la descarga. Continúa con la progresión.`;
       }
     }
 
@@ -1428,18 +1631,18 @@
       document.getElementById("nutritionResults").innerHTML = `
         <div class="set-box">
           <label>Proteína Diaria (2g / kg)</label>
-          <div style="font-size:1.3rem; font-weight:800; color:var(--accent);">${protein} g / día</div>
-          <div style="font-size:0.78rem; color:var(--text-muted);">En 3 comidas + 1 snack (40g+ c/u)</div>
+          <div style="font-size:1.25rem; font-weight:800; color:var(--text-main);">${protein} g/día</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">En 3 comidas + 1 snack (40g+ c/u)</div>
         </div>
         <div class="set-box">
-          <label>Calorías Mantenimiento (×30–32)</label>
-          <div style="font-size:1.3rem; font-weight:800; color:var(--success);">${maintMin} – ${maintMax} kcal</div>
-          <div style="font-size:0.78rem; color:var(--text-muted);">Prioridad ganar fuerza y recomponer</div>
+          <label>Mantenimiento (×30–32)</label>
+          <div style="font-size:1.25rem; font-weight:800; color:var(--success);">${maintMin}–${maintMax} kcal</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Recomposición y fuerza</div>
         </div>
         <div class="set-box">
-          <label>Déficit Ligero (-300 a -500 kcal)</label>
-          <div style="font-size:1.3rem; font-weight:800; color:var(--info);">${deficitMin} – ${deficitMax} kcal</div>
-          <div style="font-size:0.78rem; color:var(--text-muted);">Pérdida de grasa sin arruinar el Engine</div>
+          <label>Déficit Ligero (-300 a -500)</label>
+          <div style="font-size:1.25rem; font-weight:800; color:var(--primary);">${deficitMin}–${deficitMax} kcal</div>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Definir sin perder Engine</div>
         </div>
       `;
     }
@@ -1448,7 +1651,7 @@
     function renderChecklist() {
       const table = document.getElementById("checklistTable");
       let html = `<thead><tr><th>Hábito Diario / Semanal</th>`;
-      for (let w = 1; w <= 8; w++) html += `<th>Sem ${w}</th>`;
+      for (let w = 1; w <= 8; w++) html += `<th>S${w}</th>`;
       html += `</tr></thead><tbody>`;
 
       CHECKLIST_ITEMS.forEach((item, idx) => {
@@ -1461,22 +1664,20 @@
         html += `</tr>`;
       });
 
-      // Score Row
-      html += `<tr style="background:rgba(245,158,11,0.1); font-weight:800;"><td>Puntuación Semanal (Ticks de 12) →</td>`;
+      html += `<tr style="background:#f1f5f9; font-weight:800;"><td>Puntuación Semanal (Ticks de 12) →</td>`;
       for (let w = 1; w <= 8; w++) {
         let score = 0;
         for (let i = 0; i < 12; i++) {
           if (appData.checklist[`chk_w${w}_i${i}`]) score++;
         }
-        html += `<td id="chkScore_w${w}" style="color:var(--accent);">${score} / 12</td>`;
+        html += `<td id="chkScore_w${w}" style="color:var(--accent);">${score}/12</td>`;
       }
       html += `</tr>`;
 
-      // Top Set Row
-      html += `<tr><td><strong>Main Lift: Squat / Deadlift Top Set (kg) →</strong></td>`;
+      html += `<tr><td><strong>Main Lift: Squat / DL Top Set (kg) →</strong></td>`;
       for (let w = 1; w <= 8; w++) {
         const val = appData.topSets[`top_w${w}`] || "";
-        html += `<td><input type="text" value="${val}" placeholder="kg" style="width:70px; text-align:center;" oninput="saveTopSet(${w}, this.value)"></td>`;
+        html += `<td><input type="text" value="${val}" placeholder="kg" style="width:60px; text-align:center; padding:4px;" oninput="saveTopSet(${w}, this.value)"></td>`;
       }
       html += `</tr></tbody>`;
       table.innerHTML = html;
@@ -1491,6 +1692,324 @@
     function saveTopSet(week, val) {
       appData.topSets[`top_w${week}`] = val;
       saveData();
+    }
+
+    // --- WEEKLY SUMMARY EXPORT MODAL ---
+    function openExportModal() {
+      const week = document.getElementById("weekSelect").value;
+      const modal = document.getElementById("exportModal");
+      const textarea = document.getElementById("exportText");
+
+      let text = `THE HYBRID DAD BLUEPRINT — RESUMEN SEMANA ${week}\n`;
+      text += `==============================================\n\n`;
+
+      // Strength A
+      const sqData = appData.workouts[`w${week}_strengthA_sq`];
+      const bpData = appData.workouts[`w${week}_strengthA_db_bp`];
+      const rowData = appData.workouts[`w${week}_strengthA_cs_row`];
+      const finA = appData.workouts[`w${week}_strengthA_finisher`] || "Completado";
+
+      text += `[LUNES] Strength A • 45 min\n`;
+      if (sqData && sqData.sets && sqData.sets[0] && sqData.sets[0].weight) {
+        const s1 = sqData.sets[0], s2 = sqData.sets[1] || s1;
+        text += `• Squat: ${s1.weight}kg × ${s1.reps || 0}, ${s2.weight}kg × ${s2.reps || 0}\n`;
+      } else {
+        text += `• Squat: (Sin registro)\n`;
+      }
+      if (bpData && bpData.sets && bpData.sets[0] && bpData.sets[0].weight) {
+        text += `• DB Bench: ${bpData.sets[0].weight}s × ${bpData.sets[0].reps || 0} + CS Row: ${rowData?.sets?.[0]?.weight || 0}kg × ${rowData?.sets?.[0]?.reps || 0}\n`;
+      }
+      text += `• Engine Finisher: ${finA}\n\n`;
+
+      // Engine Day
+      text += `[MARTES] Engine Day • 35 min\n`;
+      let engineLogged = false;
+      ENGINE_MENUS.forEach(m => {
+        const val = appData.workouts[`w${week}_engine_${m.id}`];
+        if (val) {
+          text += `• ${m.name}: ${val}\n`;
+          engineLogged = true;
+        }
+      });
+      if (!engineLogged) text += `• Menú seleccionado: (Ver registro)\n`;
+      text += `\n`;
+
+      // Strength B
+      const dlData = appData.workouts[`w${week}_strengthB_dl`];
+      const ohpData = appData.workouts[`w${week}_strengthB_ohp`];
+      const puData = appData.workouts[`w${week}_strengthB_pullup`];
+      const finB = appData.workouts[`w${week}_strengthB_finisher`] || "Completado";
+
+      text += `[JUEVES] Strength B • 45 min\n`;
+      if (dlData && dlData.sets && dlData.sets[0] && dlData.sets[0].weight) {
+        const s1 = dlData.sets[0], s2 = dlData.sets[1] || s1;
+        text += `• Deadlift: ${s1.weight}kg × ${s1.reps || 0}, ${s2.weight}kg × ${s2.reps || 0}\n`;
+      } else {
+        text += `• Deadlift: (Sin registro)\n`;
+      }
+      if (ohpData && ohpData.sets && ohpData.sets[0] && ohpData.sets[0].weight) {
+        text += `• OHP: ${ohpData.sets[0].weight}kg × ${ohpData.sets[0].reps || 0} + Pull-ups: ${puData?.sets?.[0]?.reps || 0} reps\n`;
+      }
+      text += `• Short Burst: ${finB}\n\n`;
+
+      // Hybrid
+      const hyFin = appData.workouts[`w${week}_hybridGym_finisher`] || appData.workouts[`w${week}_hybridGarage_finisher`] || "Completado";
+      const hyCore = appData.workouts[`w${week}_hybridGym_core`] || appData.workouts[`w${week}_hybridGarage_core`] || "2 rondas completadas";
+      text += `[SÁBADO] Hybrid Session • 45 min\n`;
+      text += `• Superseries Front Squat / Push Press / RDL: Realizadas @ RIR 2\n`;
+      text += `• Conditioning Block: ${hyFin}\n`;
+      text += `• Carries + Core: ${hyCore}\n\n`;
+
+      // Checklist Score
+      let chkCount = 0;
+      for (let i = 0; i < 12; i++) {
+        if (appData.checklist[`chk_w${week}_i${i}`]) chkCount++;
+      }
+      text += `PUNTUACIÓN CHECKLIST: ${chkCount} / 12 ticks\n`;
+
+      textarea.value = text;
+      modal.style.display = "flex";
+    }
+
+    function closeExportModal() {
+      document.getElementById("exportModal").style.display = "none";
+    }
+
+    function copyExportText() {
+      const textarea = document.getElementById("exportText");
+      textarea.select();
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        alert("¡Resumen copiado al portapapeles con éxito!");
+      });
+    }
+
+    // --- CHART.JS INITIALIZATION & RENDERING ---
+    let chartInstances = {};
+
+    function renderCharts() {
+      const weeks = ["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"];
+
+      // 1. Data Strength (Squat & Deadlift)
+      let squatWeights = [];
+      let deadliftWeights = [];
+      for (let w = 1; w <= 8; w++) {
+        const sq = appData.workouts[`w${w}_strengthA_sq`]?.sets?.[0]?.weight;
+        const dl = appData.workouts[`w${w}_strengthB_dl`]?.sets?.[0]?.weight;
+        squatWeights.push(sq ? parseFloat(sq) : null);
+        deadliftWeights.push(dl ? parseFloat(dl) : null);
+      }
+
+      if (!squatWeights[0] && getSuggestedWeek1Weight('sq') > 0) squatWeights[0] = getSuggestedWeek1Weight('sq');
+      if (!deadliftWeights[0] && getSuggestedWeek1Weight('dl') > 0) deadliftWeights[0] = getSuggestedWeek1Weight('dl');
+
+      // 2. Data Engine (Bike calories)
+      let bikeCalories = [];
+      for (let w = 1; w <= 8; w++) {
+        let val = appData.workouts[`w${w}_engine_menu2`];
+        let num = val ? parseFloat(val.replace(/[^0-9.]/g, '')) : null;
+        bikeCalories.push(num);
+      }
+
+      // 3. Data Adherence
+      let adherenceScores = [];
+      for (let w = 1; w <= 8; w++) {
+        let count = 0;
+        for (let i = 0; i < 12; i++) {
+          if (appData.checklist[`chk_w${w}_i${i}`]) count++;
+        }
+        adherenceScores.push(count);
+      }
+
+      // 4. Benchmarks Radar (Normalized 0-100)
+      function scoreBench(val, type) {
+        if (!val) return 20;
+        if (type === 'row') {
+          const parts = val.split(':');
+          if (parts.length < 2) return 50;
+          const secs = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+          if (secs <= 435) return 100;
+          if (secs <= 480) return 75;
+          if (secs <= 540) return 50;
+          return 25;
+        }
+        if (type === 'run') {
+          const parts = val.split(':');
+          if (parts.length < 2) return 50;
+          const secs = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+          if (secs <= 1380) return 100;
+          if (secs <= 1620) return 75;
+          if (secs <= 1920) return 50;
+          return 25;
+        }
+        const n = parseFloat(val) || 0;
+        const bw = appData.bodyWeight || 99;
+        if (type === 'bike') {
+          if (n >= 200) return 100;
+          if (n >= 160) return 75;
+          if (n >= 120) return 50;
+          return 25;
+        }
+        if (type === 'fw') {
+          const r = n / bw;
+          if (r >= 1.0) return 100;
+          if (r >= 0.75) return 75;
+          if (r >= 0.5) return 50;
+          return 25;
+        }
+        if (type === 'dl') {
+          const r = n / bw;
+          if (r >= 2.0) return 100;
+          if (r >= 1.5) return 75;
+          if (r >= 1.0) return 50;
+          return 25;
+        }
+        return 30;
+      }
+
+      const radarW1 = [
+        scoreBench(appData.benchmarks['bm_row_1'], 'row'),
+        scoreBench(appData.benchmarks['bm_run_1'], 'run'),
+        scoreBench(appData.benchmarks['bm_bike_1'], 'bike'),
+        scoreBench(appData.benchmarks['bm_fw_1'], 'fw'),
+        scoreBench(appData.benchmarks['bm_dl_1'], 'dl')
+      ];
+
+      const radarW8 = [
+        scoreBench(appData.benchmarks['bm_row_8'], 'row'),
+        scoreBench(appData.benchmarks['bm_run_8'], 'run'),
+        scoreBench(appData.benchmarks['bm_bike_8'], 'bike'),
+        scoreBench(appData.benchmarks['bm_fw_8'], 'fw'),
+        scoreBench(appData.benchmarks['bm_dl_8'], 'dl')
+      ];
+
+      ['strengthChart', 'engineChart', 'adherenceChart', 'radarChart'].forEach(id => {
+        if (chartInstances[id]) chartInstances[id].destroy();
+      });
+
+      // Chart 1: Strength Line Chart
+      const ctxStrength = document.getElementById('strengthChart').getContext('2d');
+      chartInstances['strengthChart'] = new Chart(ctxStrength, {
+        type: 'line',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Back Squat (kg)',
+              data: squatWeights,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              tension: 0.25,
+              spanGaps: true,
+              borderWidth: 2.5
+            },
+            {
+              label: 'Deadlift / Trap Bar (kg)',
+              data: deadliftWeights,
+              borderColor: '#d97706',
+              backgroundColor: 'rgba(217, 119, 6, 0.1)',
+              tension: 0.25,
+              spanGaps: true,
+              borderWidth: 2.5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 } } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // Chart 2: Engine Bar Chart
+      const ctxEngine = document.getElementById('engineChart').getContext('2d');
+      chartInstances['engineChart'] = new Chart(ctxEngine, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [{
+            label: 'Calorías Bike Erg',
+            data: bikeCalories,
+            backgroundColor: '#0284c7',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: '#f1f5f9' }, beginAtZero: false },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // Chart 3: Adherence Bar Chart
+      const ctxAdherence = document.getElementById('adherenceChart').getContext('2d');
+      chartInstances['adherenceChart'] = new Chart(ctxAdherence, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [{
+            label: 'Ticks de Checklist (máx 12)',
+            data: adherenceScores,
+            backgroundColor: adherenceScores.map(v => v >= 10 ? '#15803d' : '#f59e0b'),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 12, ticks: { stepSize: 2 }, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // Chart 4: Radar Benchmarks
+      const ctxRadar = document.getElementById('radarChart').getContext('2d');
+      chartInstances['radarChart'] = new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+          labels: ['2.000m Remo', '5k Carrera', 'Bike 10m', 'Farmer Walk', 'Trap Bar DL'],
+          datasets: [
+            {
+              label: 'Semana 1',
+              data: radarW1,
+              backgroundColor: 'rgba(100, 116, 139, 0.2)',
+              borderColor: '#64748b',
+              pointBackgroundColor: '#64748b'
+            },
+            {
+              label: 'Semana 8',
+              data: radarW8,
+              backgroundColor: 'rgba(37, 99, 235, 0.25)',
+              borderColor: '#2563eb',
+              pointBackgroundColor: '#2563eb'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { color: '#e2e8f0' },
+              grid: { color: '#e2e8f0' },
+              suggestedMin: 0,
+              suggestedMax: 100,
+              ticks: { display: false }
+            }
+          },
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
     }
 
     // --- BACKUP EXPORT / IMPORT ---
